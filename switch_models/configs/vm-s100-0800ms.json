@@ -1,0 +1,29 @@
+{
+  "model_name": "VM-S100-0800MS",
+  "api_endpoints": {
+    "system_info": "cgi/get.cgi?cmd=sys_sysinfo",
+    "cpu_memory": "cgi/get.cgi?cmd=sys_cpumem",
+    "port_count": "cgi/get.cgi?cmd=port_cnt",
+    "port_bandwidth": "cgi/get.cgi?cmd=port_bwutilz",
+    "lag_info": "cgi/get.cgi?cmd=lag_mgmt",
+    "syslog": "cgi/get.cgi?cmd=log_syslog",
+    "panel_info": "cgi/get.cgi?cmd=panel_info",
+    "panel_layout": "cgi/get.cgi?cmd=panel_layout",
+    "vlan_config": "cgi/get.cgi?cmd=vlan_conf",
+    "vlan_membership": "cgi/get.cgi?cmd=vlan_membership",
+    "vlan_port": "cgi/get.cgi?cmd=vlan_port",
+    "mac_dynamic": "cgi/get.cgi?cmd=mac_dynamic",
+    "mac_static": "cgi/get.cgi?cmd=mac_static",
+    "mac_status": "cgi/get.cgi?cmd=mac_miscStatus"
+  },
+  "login_endpoint": "cgi/home_loginAuth",
+  "authentication_method": "form",
+  "features": {
+    "vlan_support": true,
+    "mac_table_support": true,
+    "port_statistics": true,
+    "system_info": true,
+    "vlan_management": true,
+    "mac_vendor_lookup": true
+  }
+}

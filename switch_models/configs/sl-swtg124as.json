@@ -1,0 +1,25 @@
+{
+  "model_name": "SL-SWTG124AS",
+  "api_endpoints": {
+    "system_info": "info.cgi",
+    "port_status": "port.cgi",
+    "port_statistics": "port.cgi?page=stats",
+    "vlan_static": "vlan.cgi?page=static",
+    "vlan_port_based": "vlan.cgi?page=port_based",
+    "mac_forwarding_table": "mac.cgi?page=fwd_tbl",
+    "mac_static": "mac.cgi?page=static",
+    "ip_settings": "ip.cgi",
+    "user_accounts": "user.cgi"
+  },
+  "login_endpoint": "login.cgi",
+  "authentication_method": "md5_cookie",
+  "features": {
+    "vlan_support": true,
+    "mac_table_support": true,
+    "port_statistics": true,
+    "system_info": true,
+    "vlan_management": true,
+    "mac_vendor_lookup": true,
+    "html_interface": true
+  }
+}
