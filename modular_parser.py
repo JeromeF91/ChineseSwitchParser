@@ -7,7 +7,7 @@ Supports multiple switch models with a unified interface.
 import click
 import json
 import time
-from switch_models import get_model, list_models as get_available_models
+from switch_models import get_model, list_models as get_available_models, get_model_with_detection
 from rich.console import Console
 
 console = Console()
@@ -17,7 +17,7 @@ console = Console()
 @click.option('--url', help='Switch URL (e.g., http://10.41.8.33)')
 @click.option('--username', help='Username for authentication')
 @click.option('--password', help='Password for authentication')
-@click.option('--model', default='vm-s100-0800ms', help=f'Switch model (available: {", ".join(get_available_models())})')
+@click.option('--model', default=None, help=f'Switch model (available: {", ".join(get_available_models())}). If not specified, will auto-detect.')
 @click.option('--mac-delay', default=1.0, help='Delay between MAC vendor lookups in seconds (default: 1.0)')
 @click.option('--export', help='Export data to JSON file (optional)')
 @click.option('--create-vlan', help='Create VLAN with specified ID and name (format: id:name)')
@@ -38,9 +38,13 @@ def main(url, username, password, model, mac_delay, export, create_vlan, delete_
         return
     
     try:
-        # Create switch instance
-        console.print(f"\n[bold blue]Initializing {model.upper()} switch parser...[/bold blue]")
-        switch = get_model(model)(url, username, password, mac_delay)
+        # Create switch instance with optional auto-detection
+        if model:
+            console.print(f"\n[bold blue]Initializing {model.upper()} switch parser...[/bold blue]")
+            switch = get_model(model)(url, username, password, mac_delay)
+        else:
+            console.print(f"\n[bold blue]Initializing switch parser with auto-detection...[/bold blue]")
+            switch = get_model_with_detection(url, username, password, None, mac_delay)
         
         # Handle VLAN operations
         if create_vlan:

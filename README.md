@@ -5,6 +5,7 @@ A modular and comprehensive parser for Chinese network switch administrative int
 ## 🚀 Features
 
 - **Modular Architecture**: Support for multiple switch models with unified interface
+- **Auto-Detection**: Automatically detects switch model type from web interface
 - **VLAN Management**: Create, delete, and manage VLANs across different switch types
 - **MAC Vendor Resolution**: Automatic MAC address to vendor lookup with rate limiting
 - **Multiple Interface Options**: Command-line tool, web interface, and Python API
@@ -42,10 +43,11 @@ python3 modular_parser.py --list-models
 ### Basic Data Extraction
 
 ```bash
-# VM-S100-0800MS (JSON API)
-python3 modular_parser.py --url http://10.41.8.33 --username admin --password admin --model vm-s100-0800ms
+# Auto-detect switch model (recommended)
+python3 modular_parser.py --url http://10.41.8.33 --username admin --password admin
 
-# SL-SWTG124AS (HTML Interface)
+# Specify switch model manually
+python3 modular_parser.py --url http://10.41.8.33 --username admin --password admin --model vm-s100-0800ms
 python3 modular_parser.py --url http://10.41.8.35 --username admin --password admin --model sl-swtg124as
 ```
 
@@ -74,22 +76,25 @@ python3 modular_parser.py --url http://10.41.8.35 --username admin --password ad
 ### Command Line Interface
 
 ```bash
-# Basic connection and data display
-python3 modular_parser.py --url http://10.41.8.33 --username admin --password admin --model vm-s100-0800ms
+# Basic connection with auto-detection
+python3 modular_parser.py --url http://10.41.8.33 --username admin --password admin
 
-# Create VLAN and export data
-python3 modular_parser.py --url http://10.41.8.33 --username admin --password admin --model vm-s100-0800ms --create-vlan "100:Production" --export production_vlan
+# Create VLAN and export data (auto-detection)
+python3 modular_parser.py --url http://10.41.8.33 --username admin --password admin --create-vlan "100:Production" --export production_vlan
 
-# Delete VLAN
-python3 modular_parser.py --url http://10.41.8.35 --username admin --password admin --model sl-swtg124as --delete-vlan "100"
+# Delete VLAN (auto-detection)
+python3 modular_parser.py --url http://10.41.8.35 --username admin --password admin --delete-vlan "100"
 ```
 
 ### Python API
 
 ```python
-from switch_models import get_model
+from switch_models import get_model, get_model_with_detection
 
-# Get VM-S100-0800MS switch instance
+# Auto-detect switch model (recommended)
+switch = get_model_with_detection('http://10.41.8.33', 'admin', 'admin')
+
+# Or specify model manually
 switch = get_model('vm-s100-0800ms')('http://10.41.8.33', 'admin', 'admin')
 
 # Authenticate and extract data
@@ -104,13 +109,41 @@ if switch.authenticate():
     switch.delete_vlan(99)
 ```
 
+## 🔍 Auto-Detection
+
+The parser can automatically detect the switch model by analyzing the web interface. This eliminates the need to manually specify the `--model` parameter in most cases.
+
+### How Auto-Detection Works
+
+1. **Web Interface Analysis**: The parser examines the login page and other endpoints
+2. **Model Indicators**: Looks for specific CSS files, JavaScript libraries, and HTML patterns
+3. **Fallback Detection**: Tries multiple endpoints if initial detection fails
+4. **Model Mapping**: Maps detected patterns to supported switch models
+
+### Detection Indicators
+
+| **Switch Model** | **Detection Indicators** |
+|------------------|-------------------------|
+| **VM-S100-0800MS** | `login-box.css`, `jquery.confirmon.css`, `ie=emulateie10`, `cgi/set.cgi` |
+| **SL-SWTG124AS** | `md5.js`, `vlan.cgi?page=static`, `login.cgi`, model name in HTML |
+
+### Using Auto-Detection
+
+```bash
+# Auto-detect and connect
+python3 modular_parser.py --url http://10.41.8.33 --username admin --password admin
+
+# Manual model specification (if auto-detection fails)
+python3 modular_parser.py --url http://10.41.8.33 --username admin --password admin --model vm-s100-0800ms
+```
+
 ## 🔧 Command Line Options
 
 ### Main Options
 - `--url`: Switch base URL (required)
 - `--username`: Login username (required)
 - `--password`: Login password (required)
-- `--model`: Switch model (default: vm-s100-0800ms)
+- `--model`: Switch model (optional, auto-detects if not specified)
 - `--mac-delay`: Delay between MAC vendor lookups in seconds (default: 1.0)
 - `--export`: Export data to JSON file (optional)
 - `--create-vlan`: Create VLAN with format "id:name" (optional)
@@ -242,10 +275,10 @@ For issues and questions:
 
 ## 🎯 Roadmap
 
+- [x] Implement switch discovery and auto-detection
 - [ ] Add more switch models
 - [ ] Implement port configuration management
 - [ ] Add SNMP support
 - [ ] Create web interface for VLAN management
 - [ ] Add configuration backup/restore
-- [ ] Implement switch discovery and auto-detection
 - [ ] Add support for switch clusters/stacks
