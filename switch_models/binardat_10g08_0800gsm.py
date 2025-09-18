@@ -36,6 +36,7 @@ class Binardat10G080800GSM(BaseSwitchModel):
             'vlan_port_based': 'vlan.cgi?page=port_based',
             'mac_forwarding_table': 'mac.cgi?page=fwd_tbl',
             'mac_static': 'mac.cgi?page=static',
+            'arp_table': 'getSearchMac.cgi?page=inside',
             'ip_settings': 'ip.cgi',
             'user_accounts': 'user.cgi',
             'status': 'status.cgi',
@@ -224,6 +225,8 @@ class Binardat10G080800GSM(BaseSwitchModel):
             return self._parse_vlan_info(soup)
         elif 'mac' in endpoint:
             return self._parse_mac_info(soup)
+        elif 'arp' in endpoint or 'getSearchMac' in endpoint:
+            return self._parse_arp_table(soup)
         else:
             return {"content": soup.get_text()}
     
@@ -353,6 +356,30 @@ class Binardat10G080800GSM(BaseSwitchModel):
                     mac_entries.append(mac_info)
         
         return {"mac_entries": mac_entries}
+    
+    def _parse_arp_table(self, soup: BeautifulSoup) -> Dict[str, Any]:
+        """Parse ARP table information from getSearchMac.cgi."""
+        arp_entries = []
+        
+        # Find MAC address tables (same structure as ARP table)
+        tables = soup.find_all('table')
+        for table in tables:
+            rows = table.find_all('tr')
+            for row in rows:
+                cells = row.find_all('td')
+                if len(cells) >= 5:  # VLAN, MAC, Type, Creator, Port
+                    # Skip header rows
+                    if cells[0].get_text(strip=True).isdigit():
+                        arp_info = {
+                            'vlan_id': cells[0].get_text(strip=True),
+                            'mac_address': cells[1].get_text(strip=True),
+                            'type': cells[2].get_text(strip=True),
+                            'creator': cells[3].get_text(strip=True),
+                            'port': cells[4].get_text(strip=True)
+                        }
+                        arp_entries.append(arp_info)
+        
+        return {"arp_entries": arp_entries}
     
     def extract_all_data(self) -> Dict[str, Any]:
         """Extract all available data from the Binardat 10G08-0800GSM switch."""
