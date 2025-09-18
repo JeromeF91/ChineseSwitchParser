@@ -8,7 +8,6 @@ from .base import BaseSwitchModel
 from .vm_s100_0800ms import VMS1000800MS
 from .sl_swtg124as import SLSWTG124AS
 from .sl_swtgw218as import SLSWTGW218AS
-from .layer3_switch import Layer3Switch
 from .binardat_10g08_0800gsm import Binardat10G080800GSM
 
 # Model registry
@@ -19,10 +18,6 @@ MODELS = {
     'slswtg124as': SLSWTG124AS,
     'sl-swtgw218as': SLSWTGW218AS,
     'slswtgw218as': SLSWTGW218AS,
-    'layer3-switch': Layer3Switch,
-    'layer3switch': Layer3Switch,
-    'layer3-switch-rc4': Layer3Switch,
-    'layer3switch-rc4': Layer3Switch,
     '10g08-0800gsm': Binardat10G080800GSM,
     '10G08-0800GSM': Binardat10G080800GSM,
     'binardat-10g08-0800gsm': Binardat10G080800GSM,
