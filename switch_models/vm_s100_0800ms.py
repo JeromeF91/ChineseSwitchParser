@@ -5,7 +5,7 @@ This is the specific implementation for the VM-S100-0800MS switch model.
 
 import requests
 import time
-from typing import Dict, Any
+from typing import Dict, Any, Optional
 from .base import BaseSwitchModel
 import logging
 
@@ -38,7 +38,15 @@ class VMS1000800MS(BaseSwitchModel):
             'mac_dynamic': 'cgi/get.cgi?cmd=mac_dynamic',
             'mac_static': 'cgi/get.cgi?cmd=mac_static',
             'mac_status': 'cgi/get.cgi?cmd=mac_miscStatus',
-            'line_config': 'cgi/get.cgi?cmd=line_conf'
+            'line_config': 'cgi/get.cgi?cmd=line_conf',
+            'lldp_neighbors': 'cgi/get.cgi?cmd=lldp_neighbor',
+            'lldp_neighbor_detail': 'cgi/get.cgi?cmd=get_discoveryLldpNeighborDetail',
+            'lldp_config': 'cgi/get.cgi?cmd=get_discoveryLldpConfig',
+            'lldp_status': 'cgi/get.cgi?cmd=get_discoveryLldpStatus',
+            'lldp_settings': 'cgi/get.cgi?cmd=get_discoveryLldpSettings',
+            'lldp_global': 'cgi/get.cgi?cmd=get_discoveryLldpGlobal',
+            'lldp_port': 'cgi/get.cgi?cmd=get_discoveryLldpPort',
+            'lldp_port_config': 'cgi/get.cgi?cmd=get_discoveryLldpPortConfig'
         }
     
     def get_login_endpoint(self) -> str:
@@ -720,3 +728,76 @@ class VMS1000800MS(BaseSwitchModel):
         except Exception as e:
             self.console.print(f"[red]Error saving configuration: {str(e)}[/red]")
             return False
+    
+    def _parse_lldp_neighbors(self, data: Dict[str, Any]) -> Dict[str, Any]:
+        """Parse LLDP neighbor information."""
+        neighbors = []
+        
+        if 'data' in data and 'neighbors' in data['data']:
+            for neighbor in data['data']['neighbors']:
+                neighbor_info = {
+                    'local_port': neighbor.get('localPort', ''),
+                    'chassis_id': neighbor.get('chassisId', ''),
+                    'chassis_type': neighbor.get('chassisType', ''),
+                    'port_id': neighbor.get('portId', ''),
+                    'port_id_type': neighbor.get('portIdType', ''),
+                    'system_name': neighbor.get('sysName', ''),
+                    'ttl': neighbor.get('ttl', 0),
+                    'index': neighbor.get('index', 0)
+                }
+                neighbors.append(neighbor_info)
+        
+        return {
+            'neighbors': neighbors,
+            'neighbor_count': len(neighbors)
+        }
+    
+    def _parse_lldp_config(self, data: Dict[str, Any]) -> Dict[str, Any]:
+        """Parse LLDP configuration information."""
+        config = {}
+        
+        if 'data' in data:
+            config = data['data']
+        
+        return config
+    
+    def _parse_lldp_status(self, data: Dict[str, Any]) -> Dict[str, Any]:
+        """Parse LLDP status information."""
+        status = {}
+        
+        if 'data' in data:
+            status = data['data']
+        
+        return status
+    
+    def get_data(self, endpoint: str) -> Optional[Dict[str, Any]]:
+        """Get data from a specific API endpoint with LLDP parsing."""
+        try:
+            url = f"{self.url}/{endpoint}"
+            response = self.session.get(url, timeout=10)
+            
+            if response.status_code == 200:
+                try:
+                    data = response.json()
+                    
+                    # Parse LLDP-specific endpoints
+                    if 'cmd=lldp_neighbor' in endpoint:
+                        return self._parse_lldp_neighbors(data)
+                    elif 'cmd=lldp_config' in endpoint or 'cmd=get_discoveryLldpConfig' in endpoint:
+                        return self._parse_lldp_config(data)
+                    elif 'cmd=lldp_status' in endpoint or 'cmd=get_discoveryLldpStatus' in endpoint:
+                        return self._parse_lldp_status(data)
+                    else:
+                        # For other endpoints, return data as-is
+                        return data
+                        
+                except ValueError:
+                    # If not JSON, return as text
+                    return {"data": response.text}
+            else:
+                logger.warning(f"Failed to get data from {endpoint}: {response.status_code}")
+                return None
+                
+        except Exception as e:
+            logger.error(f"Error getting data from {endpoint}: {str(e)}")
+            return None

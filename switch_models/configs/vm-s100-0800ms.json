@@ -14,7 +14,15 @@
     "vlan_port": "cgi/get.cgi?cmd=vlan_port",
     "mac_dynamic": "cgi/get.cgi?cmd=mac_dynamic",
     "mac_static": "cgi/get.cgi?cmd=mac_static",
-    "mac_status": "cgi/get.cgi?cmd=mac_miscStatus"
+    "mac_status": "cgi/get.cgi?cmd=mac_miscStatus",
+    "lldp_neighbors": "cgi/get.cgi?cmd=lldp_neighbor",
+    "lldp_neighbor_detail": "cgi/get.cgi?cmd=get_discoveryLldpNeighborDetail",
+    "lldp_config": "cgi/get.cgi?cmd=get_discoveryLldpConfig",
+    "lldp_status": "cgi/get.cgi?cmd=get_discoveryLldpStatus",
+    "lldp_settings": "cgi/get.cgi?cmd=get_discoveryLldpSettings",
+    "lldp_global": "cgi/get.cgi?cmd=get_discoveryLldpGlobal",
+    "lldp_port": "cgi/get.cgi?cmd=get_discoveryLldpPort",
+    "lldp_port_config": "cgi/get.cgi?cmd=get_discoveryLldpPortConfig"
   },
   "login_endpoint": "cgi/home_loginAuth",
   "authentication_method": "form",
@@ -24,6 +32,10 @@
     "port_statistics": true,
     "system_info": true,
     "vlan_management": true,
-    "mac_vendor_lookup": true
+    "mac_vendor_lookup": true,
+    "lldp_support": true,
+    "lldp_neighbor_discovery": true,
+    "lldp_configuration": true,
+    "topology_discovery": true
   }
 }
