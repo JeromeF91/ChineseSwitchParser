@@ -28,11 +28,11 @@ class Binardat10G080800GSM(BaseSwitchModel):
         """Return the API endpoints specific to this model."""
         return {
             'login': 'login.cgi',
-            'system_info': 'system.cgi',
-            'port_status': 'port.cgi',
+            'system_info': 'homepage.cgi',  # This provides device info and port status
+            'port_status': 'homepage.cgi',  # Port status is included in homepage
             'port_statistics': 'port.cgi?page=stats',
             'port_config': 'port.cgi?page=config',
-            'vlan_static': 'vlan.cgi?page=static',
+            'vlan_static': 'getVlanConfig.cgi?page=inside',  # Correct endpoint for VLAN listing
             'vlan_port_based': 'vlan.cgi?page=port_based',
             'mac_forwarding_table': 'mac.cgi?page=fwd_tbl',
             'mac_static': 'mac.cgi?page=static',
@@ -212,7 +212,9 @@ class Binardat10G080800GSM(BaseSwitchModel):
     
     def _parse_html_content(self, soup: BeautifulSoup, endpoint: str) -> Dict[str, Any]:
         """Parse HTML content based on the endpoint type."""
-        if 'system' in endpoint or 'info' in endpoint:
+        if 'homepage' in endpoint:
+            return self._parse_homepage_data(soup)
+        elif 'system' in endpoint or 'info' in endpoint:
             return self._parse_system_info(soup)
         elif 'port' in endpoint:
             if 'stats' in endpoint:
@@ -221,8 +223,8 @@ class Binardat10G080800GSM(BaseSwitchModel):
                 return self._parse_port_config(soup)
             else:
                 return self._parse_port_status(soup)
-        elif 'vlan' in endpoint:
-            return self._parse_vlan_info(soup)
+        elif 'vlan' in endpoint or 'getVlanConfig' in endpoint:
+            return self._parse_vlan_config(soup)
         elif 'mac' in endpoint:
             return self._parse_mac_info(soup)
         elif 'arp' in endpoint or 'getSearchMac' in endpoint:
@@ -357,6 +359,31 @@ class Binardat10G080800GSM(BaseSwitchModel):
         
         return {"mac_entries": mac_entries}
     
+    def _parse_vlan_config(self, soup: BeautifulSoup) -> Dict[str, Any]:
+        """Parse VLAN configuration from getVlanConfig.cgi."""
+        vlans = []
+        
+        # Find VLAN tables
+        tables = soup.find_all('table')
+        for table in tables:
+            rows = table.find_all('tr')
+            for row in rows:
+                cells = row.find_all('td')
+                if len(cells) >= 3:  # VLAN ID, Name, Ports
+                    # Skip header rows and empty rows
+                    vlan_id_text = cells[0].get_text(strip=True)
+                    if vlan_id_text.isdigit():
+                        vlan_info = {
+                            'id': int(vlan_id_text),
+                            'name': cells[1].get_text(strip=True),
+                            'ports': cells[2].get_text(strip=True) if len(cells) > 2 else '',
+                            'untagged': cells[3].get_text(strip=True) if len(cells) > 3 else '',
+                            'tagged': cells[4].get_text(strip=True) if len(cells) > 4 else ''
+                        }
+                        vlans.append(vlan_info)
+        
+        return {"vlans": vlans}
+    
     def _parse_arp_table(self, soup: BeautifulSoup) -> Dict[str, Any]:
         """Parse ARP table information from getSearchMac.cgi."""
         arp_entries = []
@@ -380,6 +407,43 @@ class Binardat10G080800GSM(BaseSwitchModel):
                         arp_entries.append(arp_info)
         
         return {"arp_entries": arp_entries}
+    
+    def _parse_homepage_data(self, soup: BeautifulSoup) -> Dict[str, Any]:
+        """Parse system info and port status from homepage.cgi."""
+        data = {
+            'device_info': {},
+            'ports': []
+        }
+        
+        # Parse device information table
+        tables = soup.find_all('table')
+        for table in tables:
+            rows = table.find_all('tr')
+            for row in rows:
+                cells = row.find_all('td')
+                if len(cells) >= 4:
+                    # Check if this is a device info row
+                    if any('Hostname' in cell.get_text() or 'IP Address' in cell.get_text() or 'Uptime' in cell.get_text() for cell in cells):
+                        for i in range(0, len(cells), 2):
+                            if i + 1 < len(cells):
+                                key = cells[i].get_text(strip=True).replace(':', '').replace('<b>', '').replace('</b>', '')
+                                value = cells[i + 1].get_text(strip=True)
+                                if key and value:
+                                    data['device_info'][key] = value
+                    # Check if this is a port status row
+                    elif any('Ethernet' in cell.get_text() for cell in cells):
+                        if len(cells) >= 6:
+                            port_info = {
+                                'port': cells[0].get_text(strip=True),
+                                'status': cells[1].get_text(strip=True),
+                                'type': cells[2].get_text(strip=True),
+                                'speed': cells[3].get_text(strip=True),
+                                'duplex': cells[4].get_text(strip=True),
+                                'auto_negotiation': cells[5].get_text(strip=True) if len(cells) > 5 else ''
+                            }
+                            data['ports'].append(port_info)
+        
+        return data
     
     def extract_all_data(self) -> Dict[str, Any]:
         """Extract all available data from the Binardat 10G08-0800GSM switch."""
