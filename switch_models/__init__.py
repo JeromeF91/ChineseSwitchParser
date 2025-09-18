@@ -8,6 +8,8 @@ from .base import BaseSwitchModel
 from .vm_s100_0800ms import VMS1000800MS
 from .sl_swtg124as import SLSWTG124AS
 from .sl_swtgw218as import SLSWTGW218AS
+from .layer3_switch import Layer3Switch
+from .binardat_10g08_0800gsm import Binardat10G080800GSM
 
 # Model registry
 MODELS = {
@@ -17,6 +19,15 @@ MODELS = {
     'slswtg124as': SLSWTG124AS,
     'sl-swtgw218as': SLSWTGW218AS,
     'slswtgw218as': SLSWTGW218AS,
+    'layer3-switch': Layer3Switch,
+    'layer3switch': Layer3Switch,
+    'layer3-switch-rc4': Layer3Switch,
+    'layer3switch-rc4': Layer3Switch,
+    '10g08-0800gsm': Binardat10G080800GSM,
+    '10G08-0800GSM': Binardat10G080800GSM,
+    'binardat-10g08-0800gsm': Binardat10G080800GSM,
+    'binardat_10g08_0800gsm': Binardat10G080800GSM,
+    'binardat': Binardat10G080800GSM,
     'default': VMS1000800MS
 }
 
@@ -53,6 +64,10 @@ def detect_switch_model(url: str, timeout: int = 10) -> Optional[str]:
         if response.status_code == 200:
             content = response.text.lower()
             
+            # Check for Binardat 10G08-0800GSM indicators
+            if ('layer 3 switch' in content and 'iensuegdul27c90d' in content and 'rc4(' in content):
+                return '10g08-0800gsm'
+            
             # Check for VM-S100-0800MS indicators
             if any(indicator in content for indicator in [
                 'vm-s100-0800ms',
@@ -78,18 +93,21 @@ def detect_switch_model(url: str, timeout: int = 10) -> Optional[str]:
             if any(indicator in content for indicator in [
                 'sl-swtg124as',
                 'slswtg124as',
-                'login.cgi',
                 'md5.js',
                 'vlan.cgi?page=static'
             ]):
                 return 'sl-swtg124as'
         
         # Try alternative endpoints
-        for endpoint in ['/login.cgi', '/cgi-bin/login', '/']:
+        for endpoint in ['/login.cgi', '/cgi-bin/login', '/', '/index.cgi']:
             try:
                 response = requests.get(f"{url}{endpoint}", timeout=timeout, verify=False, allow_redirects=True)
                 if response.status_code == 200:
                     content = response.text.lower()
+                    
+                    # Check for Binardat 10G08-0800GSM indicators
+                    if ('layer 3 switch' in content and 'iensuegdul27c90d' in content and 'rc4(' in content):
+                        return '10g08-0800gsm'
                     
                     # Check for SL-SWTGW218AS indicators
                     if any(indicator in content for indicator in [

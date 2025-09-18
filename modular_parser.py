@@ -24,8 +24,9 @@ console = Console()
 @click.option('--delete-vlan', help='Delete VLAN with specified ID')
 @click.option('--enable-ssh', is_flag=True, help='Enable SSH on the switch')
 @click.option('--disable-ssh', is_flag=True, help='Disable SSH on the switch')
+@click.option('--save-config', is_flag=True, help='Save configuration to flash memory')
 @click.option('--list-models', is_flag=True, help='List all available switch models')
-def main(url, username, password, model, mac_delay, export, create_vlan, delete_vlan, enable_ssh, disable_ssh, list_models):
+def main(url, username, password, model, mac_delay, export, create_vlan, delete_vlan, enable_ssh, disable_ssh, save_config, list_models):
     """Modular Chinese Switch Parser - Extract data from various switch models."""
     
     if list_models:
@@ -85,6 +86,16 @@ def main(url, username, password, model, mac_delay, export, create_vlan, delete_
                 console.print(f"[green]✅ SSH disabled successfully![/green]")
             else:
                 console.print(f"[red]❌ Failed to disable SSH[/red]")
+            return
+        
+        # Handle save configuration
+        if save_config:
+            console.print(f"\n[bold yellow]Saving configuration to flash memory...[/bold yellow]")
+            success = switch.save_configuration()
+            if success:
+                console.print(f"[green]✅ Configuration saved successfully![/green]")
+            else:
+                console.print(f"[red]❌ Failed to save configuration[/red]")
             return
         
         # Extract data
