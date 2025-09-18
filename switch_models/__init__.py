@@ -7,6 +7,7 @@ from typing import List, Optional, Dict, Any
 from .base import BaseSwitchModel
 from .vm_s100_0800ms import VMS1000800MS
 from .sl_swtg124as import SLSWTG124AS
+from .sl_swtgw218as import SLSWTGW218AS
 
 # Model registry
 MODELS = {
@@ -14,6 +15,8 @@ MODELS = {
     'vms1000800ms': VMS1000800MS,
     'sl-swtg124as': SLSWTG124AS,
     'slswtg124as': SLSWTG124AS,
+    'sl-swtgw218as': SLSWTGW218AS,
+    'slswtgw218as': SLSWTGW218AS,
     'default': VMS1000800MS
 }
 
@@ -64,6 +67,13 @@ def detect_switch_model(url: str, timeout: int = 10) -> Optional[str]:
             ]):
                 return 'vm-s100-0800ms'
             
+            # Check for SL-SWTGW218AS indicators
+            if any(indicator in content for indicator in [
+                'sl-swtgw218as',
+                'slswtgw218as'
+            ]):
+                return 'sl-swtgw218as'
+            
             # Check for SL-SWTG124AS indicators
             if any(indicator in content for indicator in [
                 'sl-swtg124as',
@@ -80,6 +90,13 @@ def detect_switch_model(url: str, timeout: int = 10) -> Optional[str]:
                 response = requests.get(f"{url}{endpoint}", timeout=timeout, verify=False, allow_redirects=True)
                 if response.status_code == 200:
                     content = response.text.lower()
+                    
+                    # Check for SL-SWTGW218AS indicators
+                    if any(indicator in content for indicator in [
+                        'sl-swtgw218as',
+                        'slswtgw218as'
+                    ]):
+                        return 'sl-swtgw218as'
                     
                     # Check for SL-SWTG124AS indicators
                     if any(indicator in content for indicator in [

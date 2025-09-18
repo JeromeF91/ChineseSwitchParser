@@ -1,0 +1,130 @@
+<html>
+
+<head>
+<title>Static VLAN Table</title>
+<link rel="stylesheet" type="text/css" href="/style.css">
+<script type="text/javascript">
+  function vlanstatic_submit()
+  {
+      var acVlanId = document.getElementById('vlanID').value;
+      if ( parseInt(acVlanId) > 4094 || parseInt(acVlanId) <= 0)
+          alert("Invalid Vlan ID (1-4094)");
+      else
+          document.formVlanStatic.submit();
+  }
+  function selAll(radioIndex, portStart, portEnd)
+  {
+      for ( i = portStart; i <= portEnd; i++)
+          document.getElementById("vlanPortRadio_"+i+"_"+radioIndex).checked = true;
+  }
+  function vlanstatic_selAll(vlanNum)
+  {
+      for ( i = 1; i < vlanNum; i++)
+          document.getElementById("vlan_"+i).checked = true;
+  }
+</script>
+</head>
+
+<body>
+<center>
+
+<fieldset>
+<legend>802.1Q VLAN</legend>
+<form method="post" action="/vlan.cgi?page=static" name=formVlanStatic id=formVlanStatic>
+  <table border="0" style="font-family:Sans-serif">
+    <tr>
+      <td style="text-align:left"><table border="1">
+          <th width="80">VLAN</th>
+          <td align="center"><input type="text" size= "14" name="vid" maxlength="4" id="vlanID">(1-4094)</td>
+      </table></td>
+      <td style="text-align:left"><table border="1">
+          <th width="110">VLAN Name</th>
+          <td align="center"><input type="text" size= "18" maxlength="16" name="name"></td>
+      </table></td>
+    </tr>    <tr><td colspan="2" style="text-align:left">      <table border="1" style="font-size:12px">
+        <tr>
+          <th>Port</th>
+          <th>Select All</th>
+          <td>1</td>
+          <td>2</td>
+          <td>3</td>
+          <td>4</td>
+          <td>5</td>
+          <td>6</td>
+          <td>7</td>
+          <td>8</td>
+          <td>9</td>
+        </tr>
+        <tr>
+          <th>Untagged</th>
+          <td><input type="button" value="   All   " onclick="selAll(0, 0, 8)"></td>
+          <td align="center"><input type="radio" name="vlanPort_0" id="vlanPortRadio_0_0" value="0"></td>
+          <td align="center"><input type="radio" name="vlanPort_1" id="vlanPortRadio_1_0" value="0"></td>
+          <td align="center"><input type="radio" name="vlanPort_2" id="vlanPortRadio_2_0" value="0"></td>
+          <td align="center"><input type="radio" name="vlanPort_3" id="vlanPortRadio_3_0" value="0"></td>
+          <td align="center"><input type="radio" name="vlanPort_4" id="vlanPortRadio_4_0" value="0"></td>
+          <td align="center"><input type="radio" name="vlanPort_5" id="vlanPortRadio_5_0" value="0"></td>
+          <td align="center"><input type="radio" name="vlanPort_6" id="vlanPortRadio_6_0" value="0"></td>
+          <td align="center"><input type="radio" name="vlanPort_7" id="vlanPortRadio_7_0" value="0"></td>
+          <td align="center"><input type="radio" name="vlanPort_8" id="vlanPortRadio_8_0" value="0"></td>
+        </tr>
+        <tr>
+          <th>Tagged</th>
+          <td><input type="button" value="   All   " onclick="selAll(1, 0, 8)"></td>
+          <td align="center"><input type="radio" name="vlanPort_0" id="vlanPortRadio_0_1" value="1"></td>
+          <td align="center"><input type="radio" name="vlanPort_1" id="vlanPortRadio_1_1" value="1"></td>
+          <td align="center"><input type="radio" name="vlanPort_2" id="vlanPortRadio_2_1" value="1"></td>
+          <td align="center"><input type="radio" name="vlanPort_3" id="vlanPortRadio_3_1" value="1"></td>
+          <td align="center"><input type="radio" name="vlanPort_4" id="vlanPortRadio_4_1" value="1"></td>
+          <td align="center"><input type="radio" name="vlanPort_5" id="vlanPortRadio_5_1" value="1"></td>
+          <td align="center"><input type="radio" name="vlanPort_6" id="vlanPortRadio_6_1" value="1"></td>
+          <td align="center"><input type="radio" name="vlanPort_7" id="vlanPortRadio_7_1" value="1"></td>
+          <td align="center"><input type="radio" name="vlanPort_8" id="vlanPortRadio_8_1" value="1"></td>
+        </tr>
+        <tr>
+          <th>Not Memeber</th>
+          <td><input type="button" value="   All   " onclick="selAll(2, 0, 8)"></td>
+          <td align="center"><input type="radio" name="vlanPort_0" id="vlanPortRadio_0_2" value="2" checked></td>
+          <td align="center"><input type="radio" name="vlanPort_1" id="vlanPortRadio_1_2" value="2" checked></td>
+          <td align="center"><input type="radio" name="vlanPort_2" id="vlanPortRadio_2_2" value="2" checked></td>
+          <td align="center"><input type="radio" name="vlanPort_3" id="vlanPortRadio_3_2" value="2" checked></td>
+          <td align="center"><input type="radio" name="vlanPort_4" id="vlanPortRadio_4_2" value="2" checked></td>
+          <td align="center"><input type="radio" name="vlanPort_5" id="vlanPortRadio_5_2" value="2" checked></td>
+          <td align="center"><input type="radio" name="vlanPort_6" id="vlanPortRadio_6_2" value="2" checked></td>
+          <td align="center"><input type="radio" name="vlanPort_7" id="vlanPortRadio_7_2" value="2" checked></td>
+          <td align="center"><input type="radio" name="vlanPort_8" id="vlanPortRadio_8_2" value="2" checked></td>
+        </tr>
+      </table>
+    </td></tr>
+  </table>
+  <br style="line-height:50%">
+  <input type="button" value="Add / Modify" onclick="vlanstatic_submit()" >
+</form>
+<hr>
+<form method="post" action="/vlan.cgi?page=getRmvVlanEntry" name=formVlanStatus>
+  <table border="1">
+    <tr>
+      <th nowrap width="60">VLAN</th>
+      <th nowrap>VLAN Name</th>
+      <th nowrap>Member Ports</th>
+      <th nowrap>Tagged Ports</th>
+      <th nowrap>Untagged Ports</th>
+      <th nowrap width="50">Delete</th>
+    </tr>
+    <tr>
+      <td width="60"><a method="post" href="/vlan.cgi?page=getVlanEntry&pickVlanId=1">1</a></td>
+      <td></td>
+      <td nowrap>1-9</td>
+      <td nowrap>-</td>
+      <td nowrap>1-9</td>
+      <td width="50"><input type="checkbox" name="remove_1" id=vlan_0 disabled></td>
+    </tr>
+  </table>
+  <br style="line-height:50%">
+  <input type="submit" name="Delete" value="    Delete    ">
+  <input type="button" value=" Select All " onclick="vlanstatic_selAll(1)">
+</form>
+</fieldset>
+</center>
+</body>
+</html>

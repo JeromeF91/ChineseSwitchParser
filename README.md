@@ -22,6 +22,7 @@ A modular and comprehensive parser for Chinese network switch administrative int
 |-----------|-------------------|-------------------|-------------------|----------------|----------------|
 | **VM-S100-0800MS** | JSON API | Form POST | ✅ Full Support | ✅ With Rate Limiting | ✅ Speed/Duplex/VLAN |
 | **SL-SWTG124AS** | HTML CGI | MD5 Cookie | ✅ Full Support | ✅ With Rate Limiting | ✅ Speed/Duplex/VLAN |
+| **SL-SWTGW218AS** | HTML CGI | MD5 Cookie | ✅ Full Support | ✅ With Rate Limiting | ✅ Speed/Duplex/VLAN |
 
 ## 🛠 Installation
 
@@ -129,6 +130,7 @@ The parser can automatically detect the switch model by analyzing the web interf
 |------------------|-------------------------|
 | **VM-S100-0800MS** | `login-box.css`, `jquery.confirmon.css`, `ie=emulateie10`, `cgi/set.cgi` |
 | **SL-SWTG124AS** | `md5.js`, `vlan.cgi?page=static`, `login.cgi`, model name in HTML |
+| **SL-SWTGW218AS** | `sl-swtgw218as`, `slswtgw218as`, `login.cgi`, `md5.js` |
 
 ### Using Auto-Detection
 
@@ -156,8 +158,10 @@ python3 modular_parser.py --url http://10.41.8.33 --username admin --password ad
 ### Available Models
 - `vm-s100-0800ms`: VM-S100-0800MS (JSON API)
 - `sl-swtg124as`: SL-SWTG124AS (HTML Interface)
+- `sl-swtgw218as`: SL-SWTGW218AS (HTML Interface)
 - `vms1000800ms`: Alias for VM-S100-0800MS
 - `slswtg124as`: Alias for SL-SWTG124AS
+- `slswtgw218as`: Alias for SL-SWTGW218AS
 
 ## 📊 Data Structure
 
@@ -257,6 +261,7 @@ The parser has been tested with the following switches:
 
 - **VM-S100-0800MS**: `http://10.41.8.33` (JSON API)
 - **SL-SWTG124AS**: `http://10.41.8.35` (HTML Interface)
+- **SL-SWTGW218AS**: `http://10.41.8.36` (HTML Interface)
 
 ## 🤝 Contributing
 
