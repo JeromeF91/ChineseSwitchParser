@@ -9,7 +9,7 @@ A modular and comprehensive parser for Chinese network switch administrative int
 - **VLAN Management**: Create, delete, and manage VLANs across different switch types
 - **MAC Vendor Resolution**: Automatic MAC address to vendor lookup with rate limiting
 - **Multiple Interface Options**: Command-line tool, web interface, and Python API
-- **Advanced Authentication**: Supports JSON API and HTML form-based authentication
+- **Advanced Authentication**: Supports JSON API, HTML form-based authentication, and RC4 encryption
 - **Comprehensive Data Extraction**: System info, port status, VLAN configuration, MAC tables, port configuration
 - **Real-time Monitoring**: Live data updates and monitoring capabilities
 - **Multiple Export Formats**: JSON, CSV, and Excel export options
@@ -23,6 +23,7 @@ A modular and comprehensive parser for Chinese network switch administrative int
 | **VM-S100-0800MS** | JSON API | Form POST | ✅ Full Support | ✅ With Rate Limiting | ✅ Speed/Duplex/VLAN | ✅ JSON API |
 | **SL-SWTG124AS** | HTML CGI | MD5 Cookie | ✅ Full Support | ✅ With Rate Limiting | ✅ Speed/Duplex/VLAN | ✅ HTML CGI |
 | **SL-SWTGW218AS** | HTML CGI | MD5 Cookie | ✅ Full Support | ✅ With Rate Limiting | ✅ Speed/Duplex/VLAN | ✅ HTML CGI |
+| **Binardat 10G08-0800GSM** | HTML CGI | RC4 Encryption | ✅ Full Support | ✅ With Rate Limiting | ✅ Speed/Duplex/VLAN | ⚠️ Limited Support |
 
 ## 🛠 Installation
 
@@ -49,7 +50,8 @@ python3 modular_parser.py --url http://10.41.8.33 --username admin --password ad
 
 # Specify switch model manually
 python3 modular_parser.py --url http://10.41.8.33 --username admin --password admin --model vm-s100-0800ms
-python3 modular_parser.py --url http://10.41.8.35 --username admin --password admin --model sl-swtg124as
+python3 modular_parser.py --url http://10.41.8.34 --username admin --password admin --model sl-swtg124as
+python3 modular_parser.py --url http://10.41.8.39 --username admin --password admin --model 10g08-0800gsm
 ```
 
 ### VLAN Management
@@ -137,6 +139,7 @@ The parser can automatically detect the switch model by analyzing the web interf
 | **VM-S100-0800MS** | `login-box.css`, `jquery.confirmon.css`, `ie=emulateie10`, `cgi/set.cgi` |
 | **SL-SWTG124AS** | `md5.js`, `vlan.cgi?page=static`, `login.cgi`, model name in HTML |
 | **SL-SWTGW218AS** | `sl-swtgw218as`, `slswtgw218as`, `login.cgi`, `md5.js` |
+| **Binardat 10G08-0800GSM** | `layer 3 switch`, `rc4(`, `iensuegdul27c90d`, `setVlanConfig.cgi` |
 
 ### Using Auto-Detection
 
@@ -168,9 +171,11 @@ python3 modular_parser.py --url http://10.41.8.33 --username admin --password ad
 - `vm-s100-0800ms`: VM-S100-0800MS (JSON API)
 - `sl-swtg124as`: SL-SWTG124AS (HTML Interface)
 - `sl-swtgw218as`: SL-SWTGW218AS (HTML Interface)
+- `10g08-0800gsm`: Binardat 10G08-0800GSM (HTML Interface with RC4 Encryption)
 - `vms1000800ms`: Alias for VM-S100-0800MS
 - `slswtg124as`: Alias for SL-SWTG124AS
 - `slswtgw218as`: Alias for SL-SWTGW218AS
+- `binardat`: Alias for Binardat 10G08-0800GSM
 
 ## 📊 Data Structure
 
@@ -269,8 +274,9 @@ ChineseSwitchParser/
 The parser has been tested with the following switches:
 
 - **VM-S100-0800MS**: `http://10.41.8.33` (JSON API)
-- **SL-SWTG124AS**: `http://10.41.8.35` (HTML Interface)
+- **SL-SWTG124AS**: `http://10.41.8.34` (HTML Interface)
 - **SL-SWTGW218AS**: `http://10.41.8.36` (HTML Interface)
+- **Binardat 10G08-0800GSM**: `http://10.41.8.39` (HTML Interface with RC4 Encryption)
 
 ## 🤝 Contributing
 
