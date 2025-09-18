@@ -40,7 +40,10 @@ class Binardat10G080800GSM(BaseSwitchModel):
             'ip_settings': 'ip.cgi',
             'user_accounts': 'user.cgi',
             'status': 'status.cgi',
-            'info': 'info.cgi'
+            'info': 'info.cgi',
+            'lldp_neighbors': 'getLLDPShow.cgi?page=inside',
+            'lldp_config': 'lldp.cgi?page=config',
+            'lldp_status': 'lldp.cgi?page=status'
         }
     
     def get_login_endpoint(self) -> str:
@@ -229,6 +232,15 @@ class Binardat10G080800GSM(BaseSwitchModel):
             return self._parse_mac_info(soup)
         elif 'arp' in endpoint or 'getSearchMac' in endpoint:
             return self._parse_arp_table(soup)
+        elif 'lldp' in endpoint or 'getLLDPShow' in endpoint:
+            if 'neighbors' in endpoint or 'getLLDPShow' in endpoint:
+                return self._parse_lldp_neighbors(soup)
+            elif 'config' in endpoint:
+                return self._parse_lldp_config(soup)
+            elif 'status' in endpoint:
+                return self._parse_lldp_status(soup)
+            else:
+                return self._parse_lldp_neighbors(soup)
         else:
             return {"content": soup.get_text()}
     
@@ -670,3 +682,47 @@ class Binardat10G080800GSM(BaseSwitchModel):
         except Exception as e:
             self.console.print(f"[red]Error saving configuration: {str(e)}[/red]")
             return False
+    
+    def _parse_lldp_neighbors(self, soup: BeautifulSoup) -> Dict[str, Any]:
+        """Parse LLDP neighbor information from getLLDPShow.cgi."""
+        neighbors = []
+        
+        # Find the neighbor table
+        table = soup.find('table', class_='dataTable')
+        if table:
+            rows = table.find_all('tr')
+            for row in rows[1:]:  # Skip header row
+                cells = row.find_all('td')
+                if len(cells) >= 8:  # Number, Local Port, Device Name, Interface, Description, MAC, IP, System Description
+                    neighbor_info = {
+                        'number': cells[0].get_text(strip=True),
+                        'local_port': cells[1].get_text(strip=True),
+                        'device_name': cells[2].get_text(strip=True) if cells[2].get_text(strip=True) != '-' else '',
+                        'neighbor_interface': cells[3].get_text(strip=True),
+                        'interface_description': cells[4].get_text(strip=True) if cells[4].get_text(strip=True) != '-' else '',
+                        'neighbor_mac': cells[5].get_text(strip=True),
+                        'neighbor_ip': cells[6].get_text(strip=True) if cells[6].get_text(strip=True) != '-' else '',
+                        'system_description': cells[7].get_text(strip=True) if cells[7].get_text(strip=True) != '-' else ''
+                    }
+                    neighbors.append(neighbor_info)
+        
+        return {
+            'neighbors': neighbors,
+            'neighbor_count': len(neighbors)
+        }
+    
+    def _parse_lldp_config(self, soup: BeautifulSoup) -> Dict[str, Any]:
+        """Parse LLDP configuration information."""
+        config = {}
+        
+        # This would parse LLDP configuration settings
+        # Implementation depends on the actual HTML structure of the config page
+        return config
+    
+    def _parse_lldp_status(self, soup: BeautifulSoup) -> Dict[str, Any]:
+        """Parse LLDP status information."""
+        status = {}
+        
+        # This would parse LLDP operational status
+        # Implementation depends on the actual HTML structure of the status page
+        return status
