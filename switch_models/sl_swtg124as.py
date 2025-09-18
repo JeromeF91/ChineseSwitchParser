@@ -26,6 +26,7 @@ class SLSWTG124AS(BaseSwitchModel):
             'system_info': 'info.cgi',
             'port_status': 'port.cgi',
             'port_statistics': 'port.cgi?page=stats',
+            'port_config': 'port.cgi?page=config',
             'vlan_static': 'vlan.cgi?page=static',
             'vlan_port_based': 'vlan.cgi?page=port_based',
             'mac_forwarding_table': 'mac.cgi?page=fwd_tbl',
@@ -90,6 +91,8 @@ class SLSWTG124AS(BaseSwitchModel):
         elif 'port.cgi' in endpoint:
             if 'page=stats' in endpoint:
                 return self._parse_port_statistics(soup)
+            elif 'page=config' in endpoint:
+                return self._parse_port_config(soup)
             else:
                 return self._parse_port_status(soup)
         elif 'vlan.cgi' in endpoint:
@@ -164,6 +167,29 @@ class SLSWTG124AS(BaseSwitchModel):
         
         return {"statistics": stats}
     
+    def _parse_port_config(self, soup: BeautifulSoup) -> Dict[str, Any]:
+        """Parse port configuration from port.cgi?page=config."""
+        ports = []
+        
+        # Find the port configuration table
+        tables = soup.find_all('table')
+        for table in tables:
+            rows = table.find_all('tr')
+            for row in rows:
+                cells = row.find_all('td')
+                if len(cells) >= 6:  # Port, Speed, Duplex, Flow Control, Auto-negotiation, etc.
+                    port_info = {
+                        'port': cells[0].get_text(strip=True),
+                        'speed': cells[1].get_text(strip=True),
+                        'duplex': cells[2].get_text(strip=True),
+                        'flow_control': cells[3].get_text(strip=True),
+                        'auto_negotiation': cells[4].get_text(strip=True),
+                        'status': cells[5].get_text(strip=True) if len(cells) > 5 else 'Unknown'
+                    }
+                    ports.append(port_info)
+        
+        return {"ports": ports}
+    
     def _parse_vlan_info(self, soup: BeautifulSoup) -> Dict[str, Any]:
         """Parse VLAN information from vlan.cgi."""
         vlans = []
@@ -217,6 +243,9 @@ class SLSWTG124AS(BaseSwitchModel):
         
         if 'vlan_static' in data.get('data', {}):
             data['vlan_info'] = self._process_vlan_data(data['data'])
+        
+        if 'port_config' in data.get('data', {}) or 'port_status' in data.get('data', {}):
+            data['port_config'] = self._process_port_config_data(data['data'])
         
         return data
     
@@ -297,6 +326,151 @@ class SLSWTG124AS(BaseSwitchModel):
         
         return vlan_info
     
+    def _process_port_config_data(self, raw_data: Dict[str, Any]) -> Dict[str, Any]:
+        """Process port configuration data including speed/duplex and VLAN assignments."""
+        port_config = {
+            'ports': [],
+            'vlan_assignments': {}
+        }
+        
+        # Process port configuration
+        if 'port_config' in raw_data and 'data' in raw_data['port_config']:
+            port_config_data = raw_data['port_config']['data']
+            if 'ports' in port_config_data:
+                for port in port_config_data['ports']:
+                    # Standardize port configuration structure
+                    port_info = {
+                        'port_id': port.get('port', 'Unknown'),
+                        'port_number': self._extract_port_number(port.get('port', 'Unknown')),
+                        'name': port.get('port', 'Unknown'),
+                        'status': 'up' if 'Full' in port.get('flow_control', '') else 'down',
+                        'enabled': port.get('speed', '').lower() == 'enable',
+                        'speed': self._normalize_speed(port.get('flow_control', 'Unknown')),
+                        'duplex': self._normalize_duplex(port.get('duplex', 'Unknown')),
+                        'auto_negotiation': port.get('auto_negotiation', 'Unknown').lower() == 'on',
+                        'flow_control': port.get('status', 'Unknown').lower() == 'on',
+                        'media_type': 'Unknown',  # Not available in this model
+                        'description': port.get('port', 'Unknown')
+                    }
+                    port_config['ports'].append(port_info)
+        
+        # Process port status for additional information
+        if 'port_status' in raw_data and 'data' in raw_data['port_status']:
+            port_status_data = raw_data['port_status']['data']
+            if 'ports' in port_status_data:
+                for port in port_status_data['ports']:
+                    port_id = port.get('port', 'Unknown')
+                    # Update existing port info or create new
+                    existing_port = next((p for p in port_config['ports'] if p['port_id'] == port_id), None)
+                    if existing_port:
+                        existing_port.update({
+                            'status': 'up' if 'Full' in port.get('actual_speed', '') else 'down',
+                            'enabled': port.get('state', '').lower() == 'enable',
+                            'speed': self._normalize_speed(port.get('actual_speed', 'Unknown')),
+                            'duplex': self._normalize_duplex_from_speed(port.get('actual_speed', 'Unknown')),
+                            'flow_control': port.get('actual_flow', 'Unknown').lower() == 'on'
+                        })
+                    else:
+                        port_info = {
+                            'port_id': port_id,
+                            'port_number': self._extract_port_number(port_id),
+                            'name': port_id,
+                            'status': 'up' if 'Full' in port.get('actual_speed', '') else 'down',
+                            'enabled': port.get('state', '').lower() == 'enable',
+                            'speed': self._normalize_speed(port.get('actual_speed', 'Unknown')),
+                            'duplex': self._normalize_duplex_from_speed(port.get('actual_speed', 'Unknown')),
+                            'auto_negotiation': port.get('config_speed', '').lower() == 'auto',
+                            'flow_control': port.get('actual_flow', 'Unknown').lower() == 'on',
+                            'media_type': 'Unknown',
+                            'description': port_id
+                        }
+                        port_config['ports'].append(port_info)
+        
+        # Process VLAN assignments from VLAN data
+        if 'vlan_static' in raw_data and 'data' in raw_data['vlan_static']:
+            vlan_data = raw_data['vlan_static']['data']
+            if 'vlans' in vlan_data:
+                for vlan in vlan_data['vlans']:
+                    vlan_id = vlan.get('vlan_id', 'Unknown')
+                    ports = vlan.get('ports', '')
+                    if ports and ports != 'N/A' and vlan_id.isdigit():
+                        # Parse port assignments (format might be like "1,2,3" or "1-3")
+                        port_list = []
+                        for port_range in ports.split(','):
+                            port_range = port_range.strip()
+                            if '-' in port_range:
+                                try:
+                                    start, end = port_range.split('-', 1)
+                                    port_list.extend(range(int(start), int(end) + 1))
+                                except ValueError:
+                                    continue
+                            else:
+                                try:
+                                    port_list.append(int(port_range))
+                                except ValueError:
+                                    continue
+                        
+                        for port_num in port_list:
+                            port_id = f"Port {port_num}"
+                            if port_id not in port_config['vlan_assignments']:
+                                port_config['vlan_assignments'][port_id] = {
+                                    'mode': 'Unknown',
+                                    'pvid': 'Unknown',
+                                    'frame_type': 'Unknown',
+                                    'ingress_filter': False,
+                                    'uplink': False,
+                                    'tpid': 'Unknown',
+                                    'tagged_vlans': [],
+                                    'untagged_vlans': []
+                                }
+                            port_config['vlan_assignments'][port_id]['untagged_vlans'].append(vlan_id)
+        
+        return port_config
+    
+    def _extract_port_number(self, port_id: str) -> int:
+        """Extract port number from port ID string."""
+        try:
+            return int(port_id.split()[-1])
+        except (ValueError, IndexError):
+            return 0
+    
+    def _normalize_speed(self, speed: str) -> str:
+        """Normalize speed values to standard format."""
+        if '10G' in speed or '10GFull' in speed:
+            return '10G'
+        elif '2500' in speed or '2500Full' in speed:
+            return '2.5G'
+        elif '1000' in speed or '1000M' in speed:
+            return '1G'
+        elif '100' in speed or '100M' in speed:
+            return '100M'
+        elif '10' in speed or '10M' in speed:
+            return '10M'
+        elif 'Link Down' in speed:
+            return 'Down'
+        else:
+            return str(speed)
+    
+    def _normalize_duplex(self, duplex: str) -> str:
+        """Normalize duplex values."""
+        if duplex.lower() == 'auto':
+            return 'auto'
+        elif 'full' in duplex.lower():
+            return 'full'
+        elif 'half' in duplex.lower():
+            return 'half'
+        else:
+            return 'Unknown'
+    
+    def _normalize_duplex_from_speed(self, speed: str) -> str:
+        """Extract duplex from speed string."""
+        if 'Full' in speed:
+            return 'full'
+        elif 'Half' in speed:
+            return 'half'
+        else:
+            return 'Unknown'
+    
     def display_data(self, data: Dict[str, Any]) -> None:
         """Display the extracted data in a formatted way specific to SL-SWTG124AS."""
         super().display_data(data)
@@ -328,6 +502,34 @@ class SLSWTG124AS(BaseSwitchModel):
                 self.console.print(f"\n[bold]Static MAC Addresses ({len(data['mac_info']['static_macs'])} entries):[/bold]")
                 for mac in data['mac_info']['static_macs']:
                     self.console.print(f"  {mac['mac_address']} -> {mac['vendor']} (Port: {mac['port']}, VLAN: {mac['vlan']})")
+        
+        # Display port configuration if available
+        if 'port_config' in data:
+            self.console.print("\n[bold yellow]Port Configuration:[/bold yellow]")
+            
+            if 'ports' in data['port_config']:
+                self.console.print("\n[bold]Port Status & Speed/Duplex:[/bold]")
+                for port in data['port_config']['ports']:
+                    status_icon = "✅" if port['status'] == 'up' else "❌"
+                    speed_duplex = f"{port['speed']} {port['duplex']}"
+                    auto_nego = "Auto" if port['auto_negotiation'] else "Manual"
+                    flow_control = "On" if port['flow_control'] else "Off"
+                    
+                    self.console.print(f"  {port['port_id']}: {status_icon} {port['status'].upper()} | {speed_duplex} | {auto_nego} | Flow: {flow_control} | {port['media_type']}")
+            
+            if 'vlan_assignments' in data['port_config']:
+                self.console.print("\n[bold]Port VLAN Assignments:[/bold]")
+                for port_id, vlan_config in data['port_config']['vlan_assignments'].items():
+                    self.console.print(f"\n  [bold]{port_id}:[/bold]")
+                    self.console.print(f"    Mode: {vlan_config.get('mode', 'Unknown')}")
+                    self.console.print(f"    PVID: {vlan_config.get('pvid', 'Unknown')}")
+                    self.console.print(f"    Frame Type: {vlan_config.get('frame_type', 'Unknown')}")
+                    self.console.print(f"    Ingress Filter: {'Enabled' if vlan_config.get('ingress_filter') else 'Disabled'}")
+                    
+                    if vlan_config.get('tagged_vlans'):
+                        self.console.print(f"    Tagged VLANs: {', '.join(vlan_config['tagged_vlans'])}")
+                    if vlan_config.get('untagged_vlans'):
+                        self.console.print(f"    Untagged VLANs: {', '.join(vlan_config['untagged_vlans'])}")
         
         # Display cache statistics
         with self.mac_lookup_lock:
@@ -421,4 +623,144 @@ class SLSWTG124AS(BaseSwitchModel):
                 
         except Exception as e:
             self.console.print(f"[red]Error deleting VLAN: {str(e)}[/red]")
+            return False
+
+    def enable_ssh(self) -> bool:
+        """Enable SSH on SL-SWTG124AS switch."""
+        try:
+            if not self.authenticate():
+                return False
+            
+            # This switch model may not support SSH or may have different configuration
+            # Let's try multiple possible endpoints and methods
+            ssh_endpoints = [
+                f"{self.url}/system.cgi",
+                f"{self.url}/config.cgi",
+                f"{self.url}/admin.cgi",
+                f"{self.url}/ssh.cgi"
+            ]
+            
+            for endpoint in ssh_endpoints:
+                try:
+                    # Try different form data configurations
+                    form_data_options = [
+                        {'ssh_enable': '1', 'cmd': 'ssh'},
+                        {'ssh_state': 'enable', 'cmd': 'system'},
+                        {'service_ssh': '1', 'cmd': 'services'},
+                        {'enable_ssh': 'on', 'cmd': 'config'},
+                        {'ssh': 'enable'}
+                    ]
+                    
+                    headers = {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'Referer': f"{self.url}/",
+                        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36'
+                    }
+                    
+                    for form_data in form_data_options:
+                        response = self.session.post(endpoint, data=form_data, headers=headers, timeout=10)
+                        
+                        if response.status_code == 200:
+                            # Check for success indicators
+                            if any(indicator in response.text.lower() for indicator in ['success', 'applied', 'saved', 'enabled']):
+                                self.console.print(f"[green]SSH enabled successfully![/green]")
+                                return True
+                                
+                except Exception as e:
+                    continue  # Try next endpoint/configuration
+            
+            # If standard methods fail, try alternative approach
+            self.console.print("[yellow]Standard SSH endpoints failed, trying alternative method...[/yellow]")
+            return self._enable_ssh_alternative_sl()
+            
+        except Exception as e:
+            self.console.print(f"[red]Error enabling SSH: {str(e)}[/red]")
+            return False
+
+    def _enable_ssh_alternative_sl(self) -> bool:
+        """Alternative method to enable SSH for SL-SWTG124AS."""
+        try:
+            # Try to check if SSH is available in system configuration
+            # This model might not support SSH at all
+            system_info_url = f"{self.url}/system.cgi"
+            
+            # Try to get system information page to see available services
+            response = self.session.get(system_info_url, timeout=10)
+            
+            if response.status_code == 200:
+                if 'ssh' in response.text.lower():
+                    # SSH might be configurable, try basic form submission
+                    form_data = {
+                        'ssh': 'on',
+                        'apply': 'Apply'
+                    }
+                    
+                    headers = {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'Referer': system_info_url,
+                        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36'
+                    }
+                    
+                    response = self.session.post(system_info_url, data=form_data, headers=headers, timeout=10)
+                    
+                    if response.status_code == 200 and 'success' in response.text.lower():
+                        self.console.print(f"[green]SSH enabled via system configuration![/green]")
+                        return True
+                else:
+                    self.console.print(f"[yellow]SSH service not found in system configuration - this model may not support SSH[/yellow]")
+                    return False
+            
+            self.console.print(f"[red]Could not access system configuration for SSH setup[/red]")
+            return False
+            
+        except Exception as e:
+            self.console.print(f"[red]Error in alternative SSH enable method: {str(e)}[/red]")
+            return False
+
+    def disable_ssh(self) -> bool:
+        """Disable SSH on SL-SWTG124AS switch."""
+        try:
+            if not self.authenticate():
+                return False
+            
+            # Similar approach but with SSH disabled
+            ssh_endpoints = [
+                f"{self.url}/system.cgi",
+                f"{self.url}/config.cgi",
+                f"{self.url}/admin.cgi",
+                f"{self.url}/ssh.cgi"
+            ]
+            
+            for endpoint in ssh_endpoints:
+                try:
+                    form_data_options = [
+                        {'ssh_enable': '0', 'cmd': 'ssh'},
+                        {'ssh_state': 'disable', 'cmd': 'system'},
+                        {'service_ssh': '0', 'cmd': 'services'},
+                        {'enable_ssh': 'off', 'cmd': 'config'},
+                        {'ssh': 'disable'}
+                    ]
+                    
+                    headers = {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'Referer': f"{self.url}/",
+                        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36'
+                    }
+                    
+                    for form_data in form_data_options:
+                        response = self.session.post(endpoint, data=form_data, headers=headers, timeout=10)
+                        
+                        if response.status_code == 200:
+                            if any(indicator in response.text.lower() for indicator in ['success', 'applied', 'saved', 'disabled']):
+                                self.console.print(f"[green]SSH disabled successfully![/green]")
+                                return True
+                                
+                except Exception as e:
+                    continue
+            
+            self.console.print(f"[red]Could not disable SSH - configuration endpoint not found[/red]")
+            return False
+            
+        except Exception as e:
+            self.console.print(f"[red]Error disabling SSH: {str(e)}[/red]")
             return False

@@ -22,8 +22,10 @@ console = Console()
 @click.option('--export', help='Export data to JSON file (optional)')
 @click.option('--create-vlan', help='Create VLAN with specified ID and name (format: id:name)')
 @click.option('--delete-vlan', help='Delete VLAN with specified ID')
+@click.option('--enable-ssh', is_flag=True, help='Enable SSH on the switch')
+@click.option('--disable-ssh', is_flag=True, help='Disable SSH on the switch')
 @click.option('--list-models', is_flag=True, help='List all available switch models')
-def main(url, username, password, model, mac_delay, export, create_vlan, delete_vlan, list_models):
+def main(url, username, password, model, mac_delay, export, create_vlan, delete_vlan, enable_ssh, disable_ssh, list_models):
     """Modular Chinese Switch Parser - Extract data from various switch models."""
     
     if list_models:
@@ -64,6 +66,25 @@ def main(url, username, password, model, mac_delay, export, create_vlan, delete_
                 console.print(f"[green]✅ VLAN {delete_vlan} deleted successfully![/green]")
             else:
                 console.print(f"[red]❌ Failed to delete VLAN {delete_vlan}[/red]")
+            return
+        
+        # Handle SSH operations
+        if enable_ssh:
+            console.print(f"\n[bold yellow]Enabling SSH on switch...[/bold yellow]")
+            success = switch.enable_ssh()
+            if success:
+                console.print(f"[green]✅ SSH enabled successfully![/green]")
+            else:
+                console.print(f"[red]❌ Failed to enable SSH[/red]")
+            return
+        
+        if disable_ssh:
+            console.print(f"\n[bold yellow]Disabling SSH on switch...[/bold yellow]")
+            success = switch.disable_ssh()
+            if success:
+                console.print(f"[green]✅ SSH disabled successfully![/green]")
+            else:
+                console.print(f"[red]❌ Failed to disable SSH[/red]")
             return
         
         # Extract data

@@ -190,3 +190,13 @@ class BaseSwitchModel(ABC):
         """Delete a VLAN. Override in model-specific implementations."""
         self.console.print(f"[yellow]VLAN deletion not implemented for {self.model_name}[/yellow]")
         return False
+    
+    def enable_ssh(self) -> bool:
+        """Enable SSH. Override in model-specific implementations."""
+        self.console.print(f"[yellow]SSH enable not implemented for {self.model_name}[/yellow]")
+        return False
+    
+    def disable_ssh(self) -> bool:
+        """Disable SSH. Override in model-specific implementations."""
+        self.console.print(f"[yellow]SSH disable not implemented for {self.model_name}[/yellow]")
+        return False

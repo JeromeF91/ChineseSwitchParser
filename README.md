@@ -10,7 +10,7 @@ A modular and comprehensive parser for Chinese network switch administrative int
 - **MAC Vendor Resolution**: Automatic MAC address to vendor lookup with rate limiting
 - **Multiple Interface Options**: Command-line tool, web interface, and Python API
 - **Advanced Authentication**: Supports JSON API and HTML form-based authentication
-- **Comprehensive Data Extraction**: System info, port status, VLAN configuration, MAC tables
+- **Comprehensive Data Extraction**: System info, port status, VLAN configuration, MAC tables, port configuration
 - **Real-time Monitoring**: Live data updates and monitoring capabilities
 - **Multiple Export Formats**: JSON, CSV, and Excel export options
 - **Sleek Presentation**: Beautiful terminal and web interfaces with rich formatting
@@ -18,10 +18,10 @@ A modular and comprehensive parser for Chinese network switch administrative int
 
 ## 📋 Supported Switch Models
 
-| **Model** | **Interface Type** | **Authentication** | **VLAN Management** | **MAC Lookup** |
-|-----------|-------------------|-------------------|-------------------|----------------|
-| **VM-S100-0800MS** | JSON API | Form POST | ✅ Full Support | ✅ With Rate Limiting |
-| **SL-SWTG124AS** | HTML CGI | MD5 Cookie | ✅ Full Support | ✅ With Rate Limiting |
+| **Model** | **Interface Type** | **Authentication** | **VLAN Management** | **MAC Lookup** | **Port Config** |
+|-----------|-------------------|-------------------|-------------------|----------------|----------------|
+| **VM-S100-0800MS** | JSON API | Form POST | ✅ Full Support | ✅ With Rate Limiting | ✅ Speed/Duplex/VLAN |
+| **SL-SWTG124AS** | HTML CGI | MD5 Cookie | ✅ Full Support | ✅ With Rate Limiting | ✅ Speed/Duplex/VLAN |
 
 ## 🛠 Installation
 
@@ -84,6 +84,9 @@ python3 modular_parser.py --url http://10.41.8.33 --username admin --password ad
 
 # Delete VLAN (auto-detection)
 python3 modular_parser.py --url http://10.41.8.35 --username admin --password admin --delete-vlan "100"
+
+# Extract data with port configuration details
+python3 modular_parser.py --url http://10.41.8.33 --username admin --password admin --export switch_with_port_config
 ```
 
 ### Python API
@@ -170,6 +173,14 @@ python3 modular_parser.py --url http://10.41.8.33 --username admin --password ad
 - VLAN assignment
 - Traffic statistics (bytes, packets)
 - Port descriptions
+
+### Port Configuration
+- **Speed/Duplex Settings**: Auto-negotiation, manual speed/duplex configuration
+- **Link Status**: Real-time port up/down status
+- **Flow Control**: Flow control settings and status
+- **VLAN Assignments**: Tagged and untagged VLAN memberships per port
+- **PVID Configuration**: Port VLAN ID assignments
+- **Port Mode**: Access/trunk port configurations
 
 ### VLAN Information
 - VLAN ID and name
