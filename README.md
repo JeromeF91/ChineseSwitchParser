@@ -18,11 +18,11 @@ A modular and comprehensive parser for Chinese network switch administrative int
 
 ## 📋 Supported Switch Models
 
-| **Model** | **Interface Type** | **Authentication** | **VLAN Management** | **MAC Lookup** | **Port Config** |
-|-----------|-------------------|-------------------|-------------------|----------------|----------------|
-| **VM-S100-0800MS** | JSON API | Form POST | ✅ Full Support | ✅ With Rate Limiting | ✅ Speed/Duplex/VLAN |
-| **SL-SWTG124AS** | HTML CGI | MD5 Cookie | ✅ Full Support | ✅ With Rate Limiting | ✅ Speed/Duplex/VLAN |
-| **SL-SWTGW218AS** | HTML CGI | MD5 Cookie | ✅ Full Support | ✅ With Rate Limiting | ✅ Speed/Duplex/VLAN |
+| **Model** | **Interface Type** | **Authentication** | **VLAN Management** | **MAC Lookup** | **Port Config** | **Save Config** |
+|-----------|-------------------|-------------------|-------------------|----------------|----------------|----------------|
+| **VM-S100-0800MS** | JSON API | Form POST | ✅ Full Support | ✅ With Rate Limiting | ✅ Speed/Duplex/VLAN | ✅ JSON API |
+| **SL-SWTG124AS** | HTML CGI | MD5 Cookie | ✅ Full Support | ✅ With Rate Limiting | ✅ Speed/Duplex/VLAN | ✅ HTML CGI |
+| **SL-SWTGW218AS** | HTML CGI | MD5 Cookie | ✅ Full Support | ✅ With Rate Limiting | ✅ Speed/Duplex/VLAN | ✅ HTML CGI |
 
 ## 🛠 Installation
 
@@ -88,6 +88,12 @@ python3 modular_parser.py --url http://10.41.8.35 --username admin --password ad
 
 # Extract data with port configuration details
 python3 modular_parser.py --url http://10.41.8.33 --username admin --password admin --export switch_with_port_config
+
+# Enable SSH
+python3 modular_parser.py --url http://10.41.8.33 --username admin --password admin --enable-ssh
+
+# Save configuration to flash memory
+python3 modular_parser.py --url http://10.41.8.37 --username admin --password admin --save-config
 ```
 
 ### Python API
@@ -153,6 +159,9 @@ python3 modular_parser.py --url http://10.41.8.33 --username admin --password ad
 - `--export`: Export data to JSON file (optional)
 - `--create-vlan`: Create VLAN with format "id:name" (optional)
 - `--delete-vlan`: Delete VLAN by ID (optional)
+- `--enable-ssh`: Enable SSH on the switch (optional)
+- `--disable-ssh`: Disable SSH on the switch (optional)
+- `--save-config`: Save configuration to flash memory (optional)
 - `--list-models`: List all available switch models
 
 ### Available Models

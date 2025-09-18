@@ -200,3 +200,8 @@ class BaseSwitchModel(ABC):
         """Disable SSH. Override in model-specific implementations."""
         self.console.print(f"[yellow]SSH disable not implemented for {self.model_name}[/yellow]")
         return False
+    
+    def save_configuration(self) -> bool:
+        """Save configuration to flash memory. Override in model-specific implementations."""
+        self.console.print(f"[yellow]Configuration save not implemented for {self.model_name}[/yellow]")
+        return False

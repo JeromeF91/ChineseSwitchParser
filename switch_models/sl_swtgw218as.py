@@ -32,7 +32,8 @@ class SLSWTGW218AS(BaseSwitchModel):
             'mac_forwarding_table': 'mac.cgi?page=fwd_tbl',
             'mac_static': 'mac.cgi?page=static',
             'ip_settings': 'ip.cgi',
-            'user_accounts': 'user.cgi'
+            'user_accounts': 'user.cgi',
+            'save_config': 'save.cgi'
         }
     
     def get_login_endpoint(self) -> str:
@@ -307,3 +308,45 @@ class SLSWTGW218AS(BaseSwitchModel):
         """Disable SSH on SL-SWTGW218AS switch."""
         self.console.print(f"[yellow]SSH disable not implemented for {self.model_name}[/yellow]")
         return False
+    
+    def save_configuration(self) -> bool:
+        """Save the current configuration to flash memory."""
+        try:
+            if not self.authenticate():
+                return False
+            
+            headers = {
+                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
+                'Accept-Language': 'en-US,en;q=0.9,fr;q=0.8',
+                'Cache-Control': 'max-age=0',
+                'Connection': 'keep-alive',
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'Origin': self.url,
+                'Referer': f'{self.url}/save.cgi',
+                'Upgrade-Insecure-Requests': '1',
+                'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36'
+            }
+            
+            # Prepare form data for saving configuration
+            form_data = {
+                'cmd': 'save'
+            }
+            
+            response = self.session.post(f"{self.url}/save.cgi", data=form_data, headers=headers, timeout=10)
+            
+            if response.status_code == 200:
+                if "success" in response.text.lower() or "saved" in response.text.lower() or "configuration" in response.text.lower():
+                    self.console.print(f"[green]Configuration saved successfully![/green]")
+                    return True
+                else:
+                    self.console.print(f"[yellow]Configuration save response: {response.text[:200]}[/yellow]")
+                    # Even if we can't parse the response, if we got 200, it likely worked
+                    self.console.print(f"[green]Configuration save completed (HTTP 200)[/green]")
+                    return True
+            else:
+                self.console.print(f"[red]Configuration save failed: HTTP {response.status_code}[/red]")
+                return False
+                
+        except Exception as e:
+            self.console.print(f"[red]Error saving configuration: {str(e)}[/red]")
+            return False

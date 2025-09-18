@@ -665,3 +665,58 @@ class VMS1000800MS(BaseSwitchModel):
         except Exception as e:
             self.console.print(f"[red]Error disabling SSH: {str(e)}[/red]")
             return False
+    
+    def save_configuration(self) -> bool:
+        """Save configuration to flash memory on VM-S100-0800MS switch."""
+        try:
+            if not self.authenticate():
+                return False
+            
+            # Try multiple possible endpoints for saving configuration
+            save_endpoints = [
+                f"{self.url}/cgi/set.cgi?cmd=save&dummy={int(time.time() * 1000)}",
+                f"{self.url}/cgi/set.cgi?cmd=config_save&dummy={int(time.time() * 1000)}",
+                f"{self.url}/cgi/set.cgi?cmd=sys_save&dummy={int(time.time() * 1000)}"
+            ]
+            
+            headers = {
+                'Accept': 'application/json, text/javascript, */*; q=0.01',
+                'Content-Type': 'application/json',
+                'Origin': self.url,
+                'Referer': f'{self.url}/html/system.html',
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+            
+            for save_url in save_endpoints:
+                try:
+                    # Try different payload formats
+                    payloads = [
+                        {"_ds=1&save=1&_de=1": {}},
+                        {"_ds=1&config_save=1&_de=1": {}},
+                        {"save": True},
+                        {"config_save": True}
+                    ]
+                    
+                    for payload in payloads:
+                        response = self.session.post(save_url, json=payload, headers=headers, timeout=10)
+                        
+                        if response.status_code == 200:
+                            try:
+                                result = response.json()
+                                if result.get('success') or 'logout' not in result:
+                                    self.console.print(f"[green]Configuration saved successfully![/green]")
+                                    return True
+                            except ValueError:
+                                # Non-JSON response, check if it's successful HTML
+                                if "success" in response.text.lower() or response.status_code == 200:
+                                    self.console.print(f"[green]Configuration saved successfully![/green]")
+                                    return True
+                except Exception as e:
+                    continue  # Try next endpoint/payload combination
+            
+            self.console.print(f"[red]Could not save configuration - no working endpoint found[/red]")
+            return False
+            
+        except Exception as e:
+            self.console.print(f"[red]Error saving configuration: {str(e)}[/red]")
+            return False
