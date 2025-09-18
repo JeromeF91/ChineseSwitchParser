@@ -570,10 +570,12 @@ class Binardat10G080800GSM(BaseSwitchModel):
             if not self.authenticate():
                 return False
             
-            # Prepare the data for VLAN deletion
+            # Prepare the data for VLAN deletion using the correct format
+            # Format: del_2=99&cmd=del&maxnum=13&page=inside
             data = {
-                'vid': str(vlan_id),
+                f'del_2': str(vlan_id),  # Use del_2 format as shown in curl
                 'cmd': 'del',
+                'maxnum': '13',  # Include maxnum parameter
                 'page': 'inside'
             }
             
