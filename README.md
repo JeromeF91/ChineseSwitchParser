@@ -18,12 +18,12 @@ A modular and comprehensive parser for Chinese network switch administrative int
 
 ## 📋 Supported Switch Models
 
-| **Model** | **Interface Type** | **Authentication** | **VLAN Management** | **MAC Lookup** | **Port Config** | **Save Config** |
-|-----------|-------------------|-------------------|-------------------|----------------|----------------|----------------|
-| **VM-S100-0800MS** | JSON API | Form POST | ✅ Full Support | ✅ With Rate Limiting | ✅ Speed/Duplex/VLAN | ✅ JSON API |
-| **SL-SWTG124AS** | HTML CGI | MD5 Cookie | ✅ Full Support | ✅ With Rate Limiting | ✅ Speed/Duplex/VLAN | ✅ HTML CGI |
-| **SL-SWTGW218AS** | HTML CGI | MD5 Cookie | ✅ Full Support | ✅ With Rate Limiting | ✅ Speed/Duplex/VLAN | ✅ HTML CGI |
-| **Binardat 10G08-0800GSM** | HTML CGI | RC4 Encryption | ✅ Full Support | ✅ With Rate Limiting | ✅ Speed/Duplex/VLAN | ⚠️ Limited Support |
+| **Model** | **Manufacturer** | **Interface Type** | **Authentication** | **VLAN Management** | **MAC Lookup** | **Port Config** | **Save Config** |
+|-----------|------------------|-------------------|-------------------|-------------------|----------------|----------------|----------------|
+| **VM-S100-0800MS** | VIMIN | JSON API | Form POST | ✅ Full Support | ✅ With Rate Limiting | ✅ Speed/Duplex/VLAN | ✅ JSON API |
+| **SL-SWTG124AS** | Sodola | HTML CGI | MD5 Cookie | ✅ Full Support | ✅ With Rate Limiting | ✅ Speed/Duplex/VLAN | ✅ HTML CGI |
+| **SL-SWTGW218AS** | Sodola | HTML CGI | MD5 Cookie | ✅ Full Support | ✅ With Rate Limiting | ✅ Speed/Duplex/VLAN | ✅ HTML CGI |
+| **Binardat 10G08-0800GSM** | Binardat | HTML CGI | RC4 Encryption | ✅ Full Support | ✅ With Rate Limiting | ✅ Speed/Duplex/VLAN | ⚠️ Limited Support |
 
 ## 🛠 Installation
 
@@ -168,13 +168,13 @@ python3 modular_parser.py --url http://10.41.8.33 --username admin --password ad
 - `--list-models`: List all available switch models
 
 ### Available Models
-- `vm-s100-0800ms`: VM-S100-0800MS (JSON API)
-- `sl-swtg124as`: SL-SWTG124AS (HTML Interface)
-- `sl-swtgw218as`: SL-SWTGW218AS (HTML Interface)
+- `vm-s100-0800ms`: VIMIN VM-S100-0800MS (JSON API)
+- `sl-swtg124as`: Sodola SL-SWTG124AS (HTML Interface)
+- `sl-swtgw218as`: Sodola SL-SWTGW218AS (HTML Interface)
 - `10g08-0800gsm`: Binardat 10G08-0800GSM (HTML Interface with RC4 Encryption)
-- `vms1000800ms`: Alias for VM-S100-0800MS
-- `slswtg124as`: Alias for SL-SWTG124AS
-- `slswtgw218as`: Alias for SL-SWTGW218AS
+- `vms1000800ms`: Alias for VIMIN VM-S100-0800MS
+- `slswtg124as`: Alias for Sodola SL-SWTG124AS
+- `slswtgw218as`: Alias for Sodola SL-SWTGW218AS
 - `binardat`: Alias for Binardat 10G08-0800GSM
 
 ## 📊 Data Structure
@@ -273,9 +273,9 @@ ChineseSwitchParser/
 
 The parser has been tested with the following switches:
 
-- **VM-S100-0800MS**: `http://10.41.8.33` (JSON API)
-- **SL-SWTG124AS**: `http://10.41.8.34` (HTML Interface)
-- **SL-SWTGW218AS**: `http://10.41.8.36` (HTML Interface)
+- **VIMIN VM-S100-0800MS**: `http://10.41.8.33` (JSON API)
+- **Sodola SL-SWTG124AS**: `http://10.41.8.34` (HTML Interface)
+- **Sodola SL-SWTGW218AS**: `http://10.41.8.36` (HTML Interface)
 - **Binardat 10G08-0800GSM**: `http://10.41.8.39` (HTML Interface with RC4 Encryption)
 
 ## 🤝 Contributing
