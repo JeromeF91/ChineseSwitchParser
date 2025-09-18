@@ -574,40 +574,33 @@ class Binardat10G080800GSM(BaseSwitchModel):
             if not self.authenticate():
                 return False
             
-            # Try common configuration save endpoints
-            save_endpoints = [
-                'saveConfig.cgi',
-                'config.cgi?cmd=save',
-                'system.cgi?cmd=save',
-                'save.cgi'
-            ]
+            # Use the correct save endpoint for Binardat switches
+            headers = {
+                'Accept': '*/*',
+                'Accept-Language': 'en-US,en;q=0.9,fr;q=0.8',
+                'Connection': 'keep-alive',
+                'Content-type': 'application/x-www-form-urlencoded',
+                'Origin': self.url,
+                'Referer': f'{self.url}/index.cgi',
+                'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36'
+            }
             
-            for endpoint in save_endpoints:
-                try:
-                    response = self.session.post(
-                        f"{self.url}/{endpoint}",
-                        headers={
-                            'Accept': '*/*',
-                            'Accept-Language': 'en-US,en;q=0.9,fr;q=0.8',
-                            'Connection': 'keep-alive',
-                            'Content-type': 'application/x-www-form-urlencoded',
-                            'Origin': self.url,
-                            'Referer': f"{self.url}/index.cgi",
-                            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36'
-                        },
-                        timeout=10
-                    )
-                    
-                    if response.status_code == 200:
-                        self.console.print(f"[green]Configuration saved successfully using {endpoint}[/green]")
-                        return True
-                        
-                except Exception as e:
-                    continue
+            # Send POST request to syscmd.cgi with save command
+            data = 'cmd=save&page=inside'
+            response = self.session.post(
+                f"{self.url}/syscmd.cgi",
+                headers=headers,
+                data=data,
+                timeout=10
+            )
             
-            self.console.print(f"[yellow]Configuration save endpoint not found or not accessible[/yellow]")
-            return False
-            
+            if response.status_code == 200:
+                self.console.print("[green]Configuration saved successfully using syscmd.cgi[/green]")
+                return True
+            else:
+                self.console.print(f"[yellow]Failed to save configuration: HTTP {response.status_code}[/yellow]")
+                return False
+                
         except Exception as e:
             self.console.print(f"[red]Error saving configuration: {str(e)}[/red]")
             return False
