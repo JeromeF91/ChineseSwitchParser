@@ -390,139 +390,300 @@ class VMS1000800MS(BaseSwitchModel):
             cache_size = len(self.mac_vendor_cache)
             self.console.print(f"\n[dim]MAC Cache: {cache_size} entries cached, current delay: {self.mac_lookup_delay}s[/dim]")
     
-    def create_vlan(self, vlan_id: int, vlan_name: str) -> bool:
-        """Create a VLAN on VM-S100-0800MS switch."""
+    # ------------------------------------------------------------------
+    # CGI write helpers
+    #
+    # All writes on this firmware go to cgi/set.cgi?cmd=<name> as
+    # application/x-www-form-urlencoded bodies wrapped in a '_ds=1 ...
+    # _de=1' envelope (this is what the web UI sends; JSON payloads are
+    # silently rejected). Responses are:
+    #   {"status":"ok", ...}                              -> applied
+    #   {"status":"error","errMsgs":[...]}                -> rejected (partially applied in some cases!)
+    #   {"logout":true,"reason":"timeout"}                -> session expired, write NOT applied
+    # Sessions expire quickly; re-authenticate before each batch and
+    # always read back state after writes.
+    # ------------------------------------------------------------------
+
+    def _form_post(self, cmd: str, pairs: list, referer_page: str = '') -> Optional[Dict[str, Any]]:
+        """POST a form-urlencoded CGI command wrapped in the _ds/_de envelope.
+
+        pairs: list of (key, value) tuples; repeated keys are allowed and
+        sent in order (required for vlan_membershipEdit 'A' entries).
+        Returns the parsed JSON response, or None on transport failure.
+        """
+        fields = [('_ds', '1')] + [(k, str(v)) for k, v in pairs] + [('_de', '1')]
+        headers = {
+            'Accept': 'application/json, text/javascript, */*; q=0.01',
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'Origin': self.url,
+            'X-Requested-With': 'XMLHttpRequest',
+        }
+        if referer_page:
+            headers['Referer'] = f'{self.url}/html/{referer_page}'
+        post_url = f"{self.url}/cgi/set.cgi?cmd={cmd}&dummy={int(time.time() * 1000)}"
+        response = self.session.post(post_url, data=fields, headers=headers, timeout=10)
+        if response.status_code != 200:
+            self.console.print(f"[red]CGI {cmd}: HTTP {response.status_code}[/red]")
+            return None
         try:
-            # First authenticate
+            return response.json()
+        except ValueError:
+            self.console.print(f"[red]CGI {cmd}: invalid response: {response.text[:120]}[/red]")
+            return None
+
+    @staticmethod
+    def _parse_write_response(result: Dict[str, Any]) -> tuple:
+        """Return (ok, error_message) for a CGI write response."""
+        if result.get('logout'):
+            return False, f"session expired ({result.get('reason', 'timeout')}); write NOT applied"
+        if result.get('status') == 'ok':
+            return True, ''
+        msgs = result.get('errMsgs') or result.get('msg') or result.get('reason') or 'unknown error'
+        return False, str(msgs)
+
+    def _form_get(self, cmd: str) -> Optional[Dict[str, Any]]:
+        """GET a CGI command and return parsed JSON (data envelope stripped if present)."""
+        get_url = f"{self.url}/cgi/get.cgi?cmd={cmd}&dummy={int(time.time() * 1000)}"
+        headers = {
+            'Accept': 'application/json, text/javascript, */*; q=0.01',
+            'X-Requested-With': 'XMLHttpRequest',
+        }
+        response = self.session.get(get_url, headers=headers, timeout=10)
+        if response.status_code != 200:
+            self.console.print(f"[red]CGI get {cmd}: HTTP {response.status_code}[/red]")
+            return None
+        try:
+            payload = response.json()
+        except ValueError:
+            self.console.print(f"[red]CGI get {cmd}: invalid response[/red]")
+            return None
+        return payload.get('data', payload) if isinstance(payload, dict) else payload
+
+    def get_current_vlan_ids(self) -> list:
+        """Return the VLAN IDs currently defined on the switch."""
+        if not self.authenticate():
+            return []
+        data = self._form_get('vlan_create')
+        if not data:
+            return []
+        return sorted(int(v['vlan']) for v in data.get('adminVlans', []))
+
+    @staticmethod
+    def _parse_membership_string(membership: str) -> list:
+        """Parse an adminVlans string like '1UP, 99T, 120T' into [(id, kind), ...].
+
+        kind is 'T' (tagged), 'UP' (untagged/native) or 'F' (forbidden).
+        The '4095P' hybrid placeholder entry is dropped.
+        """
+        entries = []
+        for token in (membership or '').split(','):
+            token = token.strip()
+            if not token or token == '4095P':
+                continue
+            digits = ''.join(c for c in token if c.isdigit())
+            kind = token[len(digits):]
+            if digits and kind in ('T', 'UP', 'F'):
+                entries.append((int(digits), kind))
+        return entries
+
+    def get_vlan_membership(self) -> list:
+        """Return authoritative per-port VLAN membership.
+
+        [{'port': <0-based index usable with vlan_membershipEdit>,
+          'mode': <0 hybrid / 1 access / 2 trunk / 3 tunnel>,
+          'entries': [(vlan_id, 'T'|'UP'|'F'), ...],
+          'admin_vlans': <raw string>}, ...]
+        """
+        if not self.authenticate():
+            return []
+        data = self._form_get('vlan_membership')
+        result = []
+        for idx, port in enumerate((data or {}).get('ports', [])):
+            result.append({
+                'port': idx,
+                'mode': port.get('mode'),
+                'entries': self._parse_membership_string(port.get('adminVlans', '')),
+                'admin_vlans': port.get('adminVlans', ''),
+            })
+        return result
+
+    def _port_membership(self, port_index: int) -> list:
+        """Return current membership entries [(id, kind), ...] for one port."""
+        ports = self.get_vlan_membership()
+        if port_index >= len(ports):
+            raise ValueError(f"port index {port_index} out of range (0..{len(ports) - 1})")
+        return ports[port_index]['entries']
+
+    def create_vlan(self, vlan_id: int, vlan_name: str) -> bool:
+        """Create a VLAN on VM-S100-0800MS switch and set its name.
+
+        ⚠️ The vlan_create CGI is DECLARATIVE: vlanList is the COMPLETE set
+        of VLANs that should exist — anything missing from the list is
+        DELETED together with its port memberships. Only default VLAN 1 and
+        the management VLAN are protected by the firmware. This method
+        therefore always sends (current set ∪ {vlan_id}); never replace
+        that with a hardcoded list.
+        """
+        try:
             if not self.authenticate():
                 return False
-            
-            # Create VLAN using the set.cgi endpoint
-            create_url = f"{self.url}/cgi/set.cgi?cmd=vlan_create&dummy={int(time.time() * 1000)}"
-            
-            # Prepare the data payload (based on our previous successful test)
-            vlan_list = f"1,105-106,110,120,130,140,150,160,170,180,190,{vlan_id}"
-            data_payload = {
-                f"_ds=1&vlanList={vlan_list}&_de=1": {}
-            }
-            
-            headers = {
-                'Accept': 'application/json, text/javascript, */*; q=0.01',
-                'Accept-Language': 'en-US,en;q=0.9,fr;q=0.8',
-                'Connection': 'keep-alive',
-                'Content-Type': 'application/json',
-                'Origin': self.url,
-                'Referer': f'{self.url}/html/vlan_vlan_create.html?_ver=3.1.0',
-                'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36',
-                'X-Requested-With': 'XMLHttpRequest'
-            }
-            
-            response = self.session.post(create_url, json=data_payload, headers=headers, timeout=10)
-            
-            if response.status_code == 200:
-                try:
-                    result = response.json()
-                    if result.get('success') or 'logout' not in result:
-                        self.console.print(f"[green]VLAN {vlan_id} created successfully![/green]")
-                        
-                        # Now update the VLAN name
-                        return self._update_vlan_name(vlan_id, vlan_name)
-                    else:
-                        self.console.print(f"[red]VLAN creation failed: {result.get('reason', 'Unknown error')}[/red]")
-                        return False
-                except ValueError:
-                    self.console.print("[red]Invalid response format from VLAN creation[/red]")
-                    return False
-            else:
-                self.console.print(f"[red]VLAN creation failed: HTTP {response.status_code}[/red]")
+
+            current = self.get_current_vlan_ids()
+            if not current:
+                self.console.print("[red]Could not read current VLAN set; refusing to write (vlan_create is declarative)[/red]")
                 return False
-                
+
+            if vlan_id in current:
+                self.console.print(f"[yellow]VLAN {vlan_id} already exists; updating name only[/yellow]")
+                return self._update_vlan_name(vlan_id, vlan_name)
+
+            wanted = sorted(set(current) | {vlan_id})
+            result = self._form_post('vlan_create',
+                                     [('vlanList', ','.join(str(v) for v in wanted))],
+                                     'vlan_vlan_create.html')
+            if result is None:
+                return False
+            ok, err = self._parse_write_response(result)
+            if not ok:
+                # error responses can be partially applied; verify actual state
+                if vlan_id in self.get_current_vlan_ids():
+                    self.console.print(f"[yellow]vlan_create reported '{err}' but VLAN {vlan_id} exists; continuing[/yellow]")
+                else:
+                    self.console.print(f"[red]VLAN {vlan_id} creation failed: {err}[/red]")
+                    return False
+            self.console.print(f"[green]VLAN {vlan_id} created successfully![/green]")
+            return self._update_vlan_name(vlan_id, vlan_name)
+
         except Exception as e:
             self.console.print(f"[red]Error creating VLAN: {str(e)}[/red]")
             return False
-    
+
     def _update_vlan_name(self, vlan_id: int, vlan_name: str) -> bool:
-        """Update VLAN name after creation."""
+        """Set a VLAN's name (vlan_edit expects 'vlan' and 'name' fields)."""
         try:
-            edit_url = f"{self.url}/cgi/set.cgi?cmd=vlan_edit&dummy={int(time.time() * 1000)}"
-            
-            data_payload = {
-                f"_ds=1&vlanId={vlan_id}&vlanName={vlan_name}&_de=1": {}
-            }
-            
-            headers = {
-                'Accept': 'application/json, text/javascript, */*; q=0.01',
-                'Content-Type': 'application/json',
-                'Origin': self.url,
-                'Referer': f'{self.url}/html/vlan_vlan_create.html?_ver=3.1.0',
-                'X-Requested-With': 'XMLHttpRequest'
-            }
-            
-            response = self.session.post(edit_url, json=data_payload, headers=headers, timeout=10)
-            
-            if response.status_code == 200:
-                try:
-                    result = response.json()
-                    if result.get('success') or 'logout' not in result:
-                        self.console.print(f"[green]VLAN {vlan_id} name updated to '{vlan_name}'[/green]")
+            result = self._form_post('vlan_edit',
+                                     [('vlan', vlan_id), ('name', vlan_name)],
+                                     'vlan_vlan_edit.html')
+            if result is None:
+                return False
+            ok, err = self._parse_write_response(result)
+            if not ok:
+                # firmware rejects duplicate names, including renaming a VLAN
+                # to the name it already has — verify intended state instead
+                data = self._form_get('vlan_create') or {}
+                for v in data.get('adminVlans', []):
+                    if int(v['vlan']) == vlan_id and v.get('name') == vlan_name:
+                        self.console.print(f"[green]VLAN {vlan_id} already named '{vlan_name}'[/green]")
                         return True
-                    else:
-                        self.console.print(f"[yellow]VLAN created but name update failed: {result.get('reason', 'Unknown error')}[/yellow]")
-                        return True  # VLAN was created, just name update failed
-                except ValueError:
-                    self.console.print("[yellow]VLAN created but name update response invalid[/yellow]")
-                    return True  # VLAN was created, just name update failed
-            else:
-                self.console.print(f"[yellow]VLAN created but name update failed: HTTP {response.status_code}[/yellow]")
-                return True  # VLAN was created, just name update failed
-                
+                self.console.print(f"[yellow]VLAN {vlan_id} name update failed: {err}[/yellow]")
+                return False
+            self.console.print(f"[green]VLAN {vlan_id} name set to '{vlan_name}'[/green]")
+            return True
         except Exception as e:
-            self.console.print(f"[yellow]VLAN created but name update error: {str(e)}[/yellow]")
-            return True  # VLAN was created, just name update failed
-    
+            self.console.print(f"[yellow]VLAN {vlan_id} name update error: {str(e)}[/yellow]")
+            return False
+
     def delete_vlan(self, vlan_id: int) -> bool:
-        """Delete a VLAN on VM-S100-0800MS switch."""
+        """Delete a VLAN on VM-S100-0800MS switch.
+
+        Implemented via the proven declarative path: vlan_create with the
+        full set MINUS the target. (The standalone 'vlan_del' command was
+        never observed working and is not used.) Firmware refuses to delete
+        default VLAN 1 and the management VLAN.
+        """
         try:
-            # First authenticate
             if not self.authenticate():
                 return False
-            
-            # Delete VLAN using the set.cgi endpoint
-            delete_url = f"{self.url}/cgi/set.cgi?cmd=vlan_del&dummy={int(time.time() * 1000)}"
-            
-            # Prepare the data payload (based on our previous successful test)
-            data_payload = {
-                f"_ds=1&vlanList={vlan_id}&_de=1": {}
-            }
-            
-            headers = {
-                'Accept': 'application/json, text/javascript, */*; q=0.01',
-                'Content-Type': 'application/json',
-                'Origin': self.url,
-                'Referer': f'{self.url}/html/vlan_vlan_create.html?_ver=3.1.0',
-                'X-Requested-With': 'XMLHttpRequest'
-            }
-            
-            response = self.session.post(delete_url, json=data_payload, headers=headers, timeout=10)
-            
-            if response.status_code == 200:
-                try:
-                    result = response.json()
-                    if result.get('success') or 'logout' not in result:
-                        self.console.print(f"[green]VLAN {vlan_id} deleted successfully![/green]")
-                        return True
-                    else:
-                        self.console.print(f"[red]VLAN deletion failed: {result.get('reason', 'Unknown error')}[/red]")
-                        return False
-                except ValueError:
-                    self.console.print("[red]Invalid response format from VLAN deletion[/red]")
-                    return False
-            else:
-                self.console.print(f"[red]VLAN deletion failed: HTTP {response.status_code}[/red]")
+
+            current = self.get_current_vlan_ids()
+            if vlan_id not in current:
+                self.console.print(f"[yellow]VLAN {vlan_id} does not exist; nothing to delete[/yellow]")
+                return True
+
+            remaining = sorted(set(current) - {vlan_id})
+            result = self._form_post('vlan_create',
+                                     [('vlanList', ','.join(str(v) for v in remaining))],
+                                     'vlan_vlan_create.html')
+            if result is None:
                 return False
-                
+            ok, err = self._parse_write_response(result)
+            if vlan_id in self.get_current_vlan_ids():
+                self.console.print(f"[red]VLAN {vlan_id} deletion failed: {err or 'still present after write'}[/red]")
+                return False
+            self.console.print(f"[green]VLAN {vlan_id} deleted successfully![/green]")
+            return True
+
         except Exception as e:
             self.console.print(f"[red]Error deleting VLAN: {str(e)}[/red]")
+            return False
+
+    def set_port_vlan_membership(self, port_index: int, entries: list, verify: bool = True) -> bool:
+        """Replace the COMPLETE VLAN membership of one port.
+
+        port_index: 0-based index into get_vlan_membership().
+        entries: iterable of (vlan_id, kind) with kind in
+                 {'T': tagged, 'UP': untagged/native, 'F': forbidden}.
+
+        ⚠️ Declarative per port: the posted list becomes the port's full
+        membership — omitted VLANs are removed from the port. Preserve the
+        native (UP) entry and the management VLAN or you can lose the
+        switch's own reachability. Use add_port_to_vlan /
+        remove_port_from_vlan for safe incremental changes.
+        """
+        try:
+            if not self.authenticate():
+                return False
+
+            formatted = sorted({(int(vid), kind) for vid, kind in entries})
+            for _vid, kind in formatted:
+                if kind not in ('T', 'UP', 'F'):
+                    self.console.print(f"[red]invalid kind '{kind}' (use 'T', 'UP' or 'F')[/red]")
+                    return False
+
+            pairs = [('port', port_index)] + [('A', f'{vid}{kind}') for vid, kind in formatted]
+            result = self._form_post('vlan_membershipEdit', pairs, 'vlan_vlan_membership.html')
+            if result is None:
+                return False
+            ok, err = self._parse_write_response(result)
+            if not ok:
+                self.console.print(f"[red]port {port_index} membership write failed: {err}[/red]")
+                return False
+
+            if verify:
+                actual = sorted(self._port_membership(port_index))
+                if actual != formatted:
+                    self.console.print(f"[red]port {port_index} read-back mismatch: expected {formatted}, got {actual}[/red]")
+                    return False
+            self.console.print(f"[green]port {port_index} membership set: {formatted}[/green]")
+            return True
+
+        except Exception as e:
+            self.console.print(f"[red]Error setting port membership: {str(e)}[/red]")
+            return False
+
+    def add_port_to_vlan(self, port_index: int, vlan_id: int, tagged: bool = True) -> bool:
+        """Add one port to one VLAN incrementally (keeps all other entries)."""
+        try:
+            current = self._port_membership(port_index)
+            kind = 'T' if tagged else 'UP'
+            wanted = {(vid, k) for vid, k in current if vid != vlan_id}
+            wanted.add((vlan_id, kind))
+            return self.set_port_vlan_membership(port_index, sorted(wanted))
+        except Exception as e:
+            self.console.print(f"[red]Error adding port {port_index} to VLAN {vlan_id}: {str(e)}[/red]")
+            return False
+
+    def remove_port_from_vlan(self, port_index: int, vlan_id: int) -> bool:
+        """Remove one port from one VLAN incrementally (keeps all other entries)."""
+        try:
+            current = self._port_membership(port_index)
+            wanted = {(vid, k) for vid, k in current if vid != vlan_id}
+            if len(wanted) == len(current):
+                self.console.print(f"[yellow]port {port_index} is not a member of VLAN {vlan_id}; nothing to remove[/yellow]")
+                return True
+            return self.set_port_vlan_membership(port_index, sorted(wanted))
+        except Exception as e:
+            self.console.print(f"[red]Error removing port {port_index} from VLAN {vlan_id}: {str(e)}[/red]")
             return False
 
     def enable_ssh(self) -> bool:
@@ -675,56 +836,21 @@ class VMS1000800MS(BaseSwitchModel):
             return False
     
     def save_configuration(self) -> bool:
-        """Save configuration to flash memory on VM-S100-0800MS switch."""
+        """Save running configuration to flash (home_save)."""
         try:
             if not self.authenticate():
                 return False
-            
-            # Try multiple possible endpoints for saving configuration
-            save_endpoints = [
-                f"{self.url}/cgi/set.cgi?cmd=save&dummy={int(time.time() * 1000)}",
-                f"{self.url}/cgi/set.cgi?cmd=config_save&dummy={int(time.time() * 1000)}",
-                f"{self.url}/cgi/set.cgi?cmd=sys_save&dummy={int(time.time() * 1000)}"
-            ]
-            
-            headers = {
-                'Accept': 'application/json, text/javascript, */*; q=0.01',
-                'Content-Type': 'application/json',
-                'Origin': self.url,
-                'Referer': f'{self.url}/html/system.html',
-                'X-Requested-With': 'XMLHttpRequest'
-            }
-            
-            for save_url in save_endpoints:
-                try:
-                    # Try different payload formats
-                    payloads = [
-                        {"_ds=1&save=1&_de=1": {}},
-                        {"_ds=1&config_save=1&_de=1": {}},
-                        {"save": True},
-                        {"config_save": True}
-                    ]
-                    
-                    for payload in payloads:
-                        response = self.session.post(save_url, json=payload, headers=headers, timeout=10)
-                        
-                        if response.status_code == 200:
-                            try:
-                                result = response.json()
-                                if result.get('success') or 'logout' not in result:
-                                    self.console.print(f"[green]Configuration saved successfully![/green]")
-                                    return True
-                            except ValueError:
-                                # Non-JSON response, check if it's successful HTML
-                                if "success" in response.text.lower() or response.status_code == 200:
-                                    self.console.print(f"[green]Configuration saved successfully![/green]")
-                                    return True
-                except Exception as e:
-                    continue  # Try next endpoint/payload combination
-            
-            self.console.print(f"[red]Could not save configuration - no working endpoint found[/red]")
-            return False
-            
+
+            result = self._form_post('home_save', [], 'system.html')
+            if result is None:
+                return False
+            ok, err = self._parse_write_response(result)
+            if not ok:
+                self.console.print(f"[red]Configuration save failed: {err}[/red]")
+                return False
+            self.console.print("[green]Configuration saved successfully![/green]")
+            return True
+
         except Exception as e:
             self.console.print(f"[red]Error saving configuration: {str(e)}[/red]")
             return False

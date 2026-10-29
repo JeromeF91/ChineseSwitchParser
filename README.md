@@ -20,7 +20,7 @@ A modular and comprehensive parser for Chinese network switch administrative int
 
 | **Model** | **Manufacturer** | **Interface Type** | **Authentication** | **VLAN Management** | **MAC Lookup** | **Port Config** | **Save Config** |
 |-----------|------------------|-------------------|-------------------|-------------------|----------------|----------------|----------------|
-| **VM-S100-0800MS** | VIMIN | JSON API | Form POST | ✅ Full Support | ✅ With Rate Limiting | ✅ Speed/Duplex/VLAN | ✅ JSON API |
+| **VM-S100-0800MS** | VIMIN | Form-urlencoded CGI | Form POST | ✅ Full Support (incl. port membership) | ✅ With Rate Limiting | ✅ Speed/Duplex/VLAN | ✅ JSON API |
 | **SL-SWTG124AS** | Sodola | HTML CGI | MD5 Cookie | ✅ Full Support | ✅ With Rate Limiting | ✅ Speed/Duplex/VLAN | ✅ HTML CGI |
 | **SL-SWTGW218AS** | Sodola | HTML CGI | MD5 Cookie | ✅ Full Support | ✅ With Rate Limiting | ✅ Speed/Duplex/VLAN | ✅ HTML CGI |
 | **Binardat 10G08-0800GSM** | Binardat | HTML CGI | RC4 Encryption | ✅ Full Support | ✅ With Rate Limiting | ✅ Speed/Duplex/VLAN | ⚠️ Limited Support |
@@ -46,32 +46,62 @@ python3 modular_parser.py --list-models
 
 ```bash
 # Auto-detect switch model (recommended)
-python3 modular_parser.py --url http://10.41.8.33 --username admin --password admin
+python3 modular_parser.py --url http://10.41.8.33 --username admin --password "$SWITCH_PASSWORD"
 
 # Specify switch model manually
-python3 modular_parser.py --url http://10.41.8.33 --username admin --password admin --model vm-s100-0800ms
-python3 modular_parser.py --url http://10.41.8.34 --username admin --password admin --model sl-swtg124as
-python3 modular_parser.py --url http://10.41.8.39 --username admin --password admin --model 10g08-0800gsm
+python3 modular_parser.py --url http://10.41.8.33 --username admin --password "$SWITCH_PASSWORD" --model vm-s100-0800ms
+python3 modular_parser.py --url http://10.41.8.34 --username admin --password "$SWITCH_PASSWORD" --model sl-swtg124as
+python3 modular_parser.py --url http://10.41.8.39 --username admin --password "$SWITCH_PASSWORD" --model 10g08-0800gsm
 ```
 
 ### VLAN Management
 
+> ⚠️ **VIMIN firmware note (`vm-s100-0800ms`):** the `vlan_create` CGI is *declarative* — its
+> `vlanList` is the complete set of VLANs that should exist, and anything omitted is deleted
+> along with its port memberships (only default VLAN 1 and the management VLAN are protected by
+> the firmware). The library always sends *current set ∪ new VLAN* so `--create-vlan` /
+> `--delete-vlan` are safe; never hand-craft a partial `vlanList` against these switches, and
+> take a full config export before batch writes.
+
 ```bash
 # Create VLAN 99 with name "testIAC"
-python3 modular_parser.py --url http://10.41.8.33 --username admin --password admin --model vm-s100-0800ms --create-vlan "99:testIAC"
+python3 modular_parser.py --url http://10.41.8.33 --username admin --password "$SWITCH_PASSWORD" --model vm-s100-0800ms --create-vlan "99:testIAC"
 
 # Delete VLAN 99
-python3 modular_parser.py --url http://10.41.8.33 --username admin --password admin --model vm-s100-0800ms --delete-vlan "99"
+python3 modular_parser.py --url http://10.41.8.33 --username admin --password "$SWITCH_PASSWORD" --model vm-s100-0800ms --delete-vlan "99"
+
+# Rename VLAN 99
+python3 modular_parser.py --url http://10.41.8.33 --username admin --password "$SWITCH_PASSWORD" --model vm-s100-0800ms --rename-vlan "99:Marketing"
+```
+
+### Port VLAN Membership (vm-s100-0800ms)
+
+Port indices are **0-based** positions in the membership table (`port[0]` = first port,
+typically TE1). Every write is read back and verified; membership changes stay in RAM until
+`--save-config` persists them.
+
+```bash
+# Show per-port VLAN membership (T=tagged, UP=untagged/native, F=forbidden)
+python3 modular_parser.py --url http://10.41.8.33 --username admin --password "$SWITCH_PASSWORD" --model vm-s100-0800ms --vlan-membership
+
+# Add port index 1 to VLAN 20 (tagged; also :untagged or :forbidden)
+python3 modular_parser.py --url http://10.41.8.33 --username admin --password "$SWITCH_PASSWORD" --model vm-s100-0800ms --port-vlan-add "1:20"
+
+# Remove port index 1 from VLAN 20
+python3 modular_parser.py --url http://10.41.8.33 --username admin --password "$SWITCH_PASSWORD" --model vm-s100-0800ms --port-vlan-remove "1:20"
+
+# Persist to flash
+python3 modular_parser.py --url http://10.41.8.33 --username admin --password "$SWITCH_PASSWORD" --model vm-s100-0800ms --save-config
 ```
 
 ### Export Data
 
 ```bash
 # Export with custom filename
-python3 modular_parser.py --url http://10.41.8.33 --username admin --password admin --model vm-s100-0800ms --export my_switch_data
+python3 modular_parser.py --url http://10.41.8.33 --username admin --password "$SWITCH_PASSWORD" --model vm-s100-0800ms --export my_switch_data
 
 # Export with MAC vendor lookup delay
-python3 modular_parser.py --url http://10.41.8.35 --username admin --password admin --model sl-swtg124as --mac-delay 2.0 --export sl_switch_data
+python3 modular_parser.py --url http://10.41.8.35 --username admin --password "$SWITCH_PASSWORD" --model sl-swtg124as --mac-delay 2.0 --export sl_switch_data
 ```
 
 ## 📖 Usage Examples
@@ -80,22 +110,22 @@ python3 modular_parser.py --url http://10.41.8.35 --username admin --password ad
 
 ```bash
 # Basic connection with auto-detection
-python3 modular_parser.py --url http://10.41.8.33 --username admin --password admin
+python3 modular_parser.py --url http://10.41.8.33 --username admin --password "$SWITCH_PASSWORD"
 
 # Create VLAN and export data (auto-detection)
-python3 modular_parser.py --url http://10.41.8.33 --username admin --password admin --create-vlan "100:Production" --export production_vlan
+python3 modular_parser.py --url http://10.41.8.33 --username admin --password "$SWITCH_PASSWORD" --create-vlan "100:Production" --export production_vlan
 
 # Delete VLAN (auto-detection)
-python3 modular_parser.py --url http://10.41.8.35 --username admin --password admin --delete-vlan "100"
+python3 modular_parser.py --url http://10.41.8.35 --username admin --password "$SWITCH_PASSWORD" --delete-vlan "100"
 
 # Extract data with port configuration details
-python3 modular_parser.py --url http://10.41.8.33 --username admin --password admin --export switch_with_port_config
+python3 modular_parser.py --url http://10.41.8.33 --username admin --password "$SWITCH_PASSWORD" --export switch_with_port_config
 
 # Enable SSH
-python3 modular_parser.py --url http://10.41.8.33 --username admin --password admin --enable-ssh
+python3 modular_parser.py --url http://10.41.8.33 --username admin --password "$SWITCH_PASSWORD" --enable-ssh
 
 # Save configuration to flash memory
-python3 modular_parser.py --url http://10.41.8.37 --username admin --password admin --save-config
+python3 modular_parser.py --url http://10.41.8.37 --username admin --password "$SWITCH_PASSWORD" --save-config
 ```
 
 ### Python API
@@ -145,10 +175,10 @@ The parser can automatically detect the switch model by analyzing the web interf
 
 ```bash
 # Auto-detect and connect
-python3 modular_parser.py --url http://10.41.8.33 --username admin --password admin
+python3 modular_parser.py --url http://10.41.8.33 --username admin --password "$SWITCH_PASSWORD"
 
 # Manual model specification (if auto-detection fails)
-python3 modular_parser.py --url http://10.41.8.33 --username admin --password admin --model vm-s100-0800ms
+python3 modular_parser.py --url http://10.41.8.33 --username admin --password "$SWITCH_PASSWORD" --model vm-s100-0800ms
 ```
 
 ## 🔧 Command Line Options
@@ -162,6 +192,10 @@ python3 modular_parser.py --url http://10.41.8.33 --username admin --password ad
 - `--export`: Export data to JSON file (optional)
 - `--create-vlan`: Create VLAN with format "id:name" (optional)
 - `--delete-vlan`: Delete VLAN by ID (optional)
+- `--rename-vlan`: Rename VLAN with format "id:name" (optional)
+- `--vlan-membership`: Show per-port VLAN membership (vm-s100-0800ms)
+- `--port-vlan-add`: Add port to VLAN, format "portIdx:vlanId[:tagged|untagged|forbidden]" (vm-s100-0800ms)
+- `--port-vlan-remove`: Remove port from VLAN, format "portIdx:vlanId" (vm-s100-0800ms)
 - `--enable-ssh`: Enable SSH on the switch (optional)
 - `--disable-ssh`: Disable SSH on the switch (optional)
 - `--save-config`: Save configuration to flash memory (optional)
