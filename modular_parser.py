@@ -22,11 +22,15 @@ console = Console()
 @click.option('--export', help='Export data to JSON file (optional)')
 @click.option('--create-vlan', help='Create VLAN with specified ID and name (format: id:name)')
 @click.option('--delete-vlan', help='Delete VLAN with specified ID')
+@click.option('--rename-vlan', help='Rename VLAN with specified ID (format: id:name)')
+@click.option('--vlan-membership', is_flag=True, help='Show per-port VLAN membership (VM-S100-0800MS)')
+@click.option('--port-vlan-add', help='Add a port to a VLAN (format: portIdx:vlanId[:tagged|untagged|forbidden], 0-based port index; VM-S100-0800MS)')
+@click.option('--port-vlan-remove', help='Remove a port from a VLAN (format: portIdx:vlanId; VM-S100-0800MS)')
 @click.option('--enable-ssh', is_flag=True, help='Enable SSH on the switch')
 @click.option('--disable-ssh', is_flag=True, help='Disable SSH on the switch')
 @click.option('--save-config', is_flag=True, help='Save configuration to flash memory')
 @click.option('--list-models', is_flag=True, help='List all available switch models')
-def main(url, username, password, model, mac_delay, export, create_vlan, delete_vlan, enable_ssh, disable_ssh, save_config, list_models):
+def main(url, username, password, model, mac_delay, export, create_vlan, delete_vlan, rename_vlan, vlan_membership, port_vlan_add, port_vlan_remove, enable_ssh, disable_ssh, save_config, list_models):
     """Modular Chinese Switch Parser - Extract data from various switch models."""
     
     if list_models:
@@ -67,6 +71,69 @@ def main(url, username, password, model, mac_delay, export, create_vlan, delete_
                 console.print(f"[green]✅ VLAN {delete_vlan} deleted successfully![/green]")
             else:
                 console.print(f"[red]❌ Failed to delete VLAN {delete_vlan}[/red]")
+            return
+        
+        if rename_vlan:
+            vlan_id, vlan_name = rename_vlan.split(':', 1)
+            if not hasattr(switch, '_update_vlan_name'):
+                console.print("[red]❌ VLAN rename not supported for this model[/red]")
+                return
+            console.print(f"\n[bold yellow]Renaming VLAN {vlan_id} to '{vlan_name}'...[/bold yellow]")
+            success = switch._update_vlan_name(int(vlan_id), vlan_name)
+            console.print(f"[green]✅ VLAN {vlan_id} renamed![/green]" if success else f"[red]❌ Failed to rename VLAN {vlan_id}[/red]")
+            return
+        
+        if vlan_membership:
+            if not hasattr(switch, 'get_vlan_membership'):
+                console.print("[red]❌ VLAN membership listing not supported for this model[/red]")
+                return
+            console.print(f"\n[bold yellow]Per-port VLAN membership:[/bold yellow]")
+            for port in switch.get_vlan_membership():
+                console.print(f"  port[{port['port']}] mode={port['mode']} {port['admin_vlans']}")
+            return
+        
+        if port_vlan_add:
+            if not hasattr(switch, 'add_port_to_vlan'):
+                console.print("[red]❌ Port VLAN membership writes not supported for this model[/red]")
+                return
+            parts = port_vlan_add.split(':')
+            if len(parts) not in (2, 3):
+                console.print("[red]Format: portIdx:vlanId[:tagged|untagged|forbidden][/red]")
+                return
+            port_idx, vlan_id = int(parts[0]), int(parts[1])
+            kind = parts[2] if len(parts) == 3 else 'tagged'
+            if kind not in ('tagged', 'untagged', 'forbidden'):
+                console.print("[red]Kind must be tagged, untagged or forbidden[/red]")
+                return
+            if kind == 'forbidden':
+                # forbidden = 'F' entry; use the full-set API for this rare case
+                current = switch._port_membership(port_idx)
+                wanted = {(vid, k) for vid, k in current if vid != vlan_id}
+                wanted.add((vlan_id, 'F'))
+                success = switch.set_port_vlan_membership(port_idx, sorted(wanted))
+            else:
+                success = switch.add_port_to_vlan(port_idx, vlan_id, tagged=(kind == 'tagged'))
+            if success:
+                console.print(f"[green]✅ Port {port_idx} added to VLAN {vlan_id} ({kind})![/green]")
+                console.print("[dim]Run --save-config to persist to flash.[/dim]")
+            else:
+                console.print(f"[red]❌ Failed to add port {port_idx} to VLAN {vlan_id}[/red]")
+            return
+        
+        if port_vlan_remove:
+            if not hasattr(switch, 'remove_port_from_vlan'):
+                console.print("[red]❌ Port VLAN membership writes not supported for this model[/red]")
+                return
+            parts = port_vlan_remove.split(':')
+            if len(parts) != 2:
+                console.print("[red]Format: portIdx:vlanId[/red]")
+                return
+            success = switch.remove_port_from_vlan(int(parts[0]), int(parts[1]))
+            if success:
+                console.print(f"[green]✅ Port {parts[0]} removed from VLAN {parts[1]}![/green]")
+                console.print("[dim]Run --save-config to persist to flash.[/dim]")
+            else:
+                console.print(f"[red]❌ Failed to remove port {parts[0]} from VLAN {parts[1]}[/red]")
             return
         
         # Handle SSH operations
