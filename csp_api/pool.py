@@ -27,7 +27,7 @@ RESOURCE_SECTIONS: Dict[str, Dict[str, List[str]]] = {
     "vm-s100-0800ms": {
         "info": ["system_info", "cpu_memory"],
         "ports": ["panel_info", "vlan_port", "vlan_membership", "port_bandwidth"],
-        "vlans": ["vlan_config", "vlan_membership"],
+        "vlans": ["vlan_config", "vlan_membership", "port_bandwidth"],
         "mac_table": ["mac_dynamic", "mac_static", "mac_status"],
         "lldp": ["lldp_neighbors"],
         "syslog": ["syslog"],
