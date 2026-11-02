@@ -24,7 +24,16 @@ except Exception:  # pragma: no cover
     pass
 warnings.filterwarnings("ignore", message=".*Unverified HTTPS request.*")
 
-from fastapi import Depends, FastAPI, Header, HTTPException, Query  # noqa: E402
+from fastapi import (  # noqa: E402
+    Depends,
+    FastAPI,
+    HTTPException,
+    Query,
+)
+from fastapi.security import (  # noqa: E402
+    HTTPAuthorizationCredentials,
+    HTTPBearer,
+)
 
 from .normalizers import NORMALIZERS, get_normalizer  # noqa: E402
 from .pool import (  # noqa: E402
@@ -54,11 +63,15 @@ def create_app(
     app.state.registry = registry if registry is not None else load_registry(hosts_path)
     app.state.pool = pool or SwitchPool()
 
-    def require_token(authorization: Optional[str] = Header(None)) -> None:
+    bearer_scheme = HTTPBearer(auto_error=False)
+
+    def require_token(
+        credentials: Optional[HTTPAuthorizationCredentials] = Depends(bearer_scheme),
+    ) -> None:
         token = os.environ.get(API_TOKEN_ENV)
         if not token:
             return  # auth disabled (dev); reported in /healthz
-        if authorization != f"Bearer {token}":
+        if credentials is None or credentials.credentials != token:
             raise HTTPException(status_code=401, detail="missing or invalid bearer token")
 
     def get_host(name: str) -> HostConfig:
