@@ -1,0 +1,1081 @@
+{
+ "system_info": {
+  "data": {
+   "location": "Default",
+   "contact": "Default",
+   "hostname": "SW-TOR01-VIM10g",
+   "sysObjID": "1.3.6.1.4.1.27282.100",
+   "sysUpTime": "lang('sys','txtSysUptimeArg',[0,13,27,55])",
+   "sysCurrTime": "2026-11-01 23:09:55 UTC-5 ",
+   "sysMac": "1A:4B:24:A3:BE:DF",
+   "currIpv4": "10.41.8.33",
+   "loaderVer": "3.6.8.55120",
+   "loaderDate": "Jun 18 2024 - 11:47:59",
+   "fwVer": "3.5.0.10",
+   "fwDate": "Apr 22 2025 - 14:02:50",
+   "currIpv6": [
+    "fe80::184b:24ff:fea3:bedf/64"
+   ],
+   "methods": [
+    {
+     "txt": "lang('line','lblTelnet')",
+     "state": false
+    },
+    {
+     "txt": "lang('line','lblSsh')",
+     "state": true
+    },
+    {
+     "txt": "lang('line','lblHttp')",
+     "state": true
+    },
+    {
+     "txt": "lang('line','lblHttps')",
+     "state": false
+    },
+    {
+     "txt": "lang('line','lblSnmp')",
+     "state": true
+    }
+   ]
+  }
+ },
+ "cpu_memory": {
+  "data": {
+   "cpu": 0,
+   "mem": 13
+  }
+ },
+ "port_count": {
+  "data": {
+   "cnts": [
+    {
+     "type": "lang('port','lblIntf')",
+     "cnts": [
+      {
+       "name": "ifInOctets",
+       "val": 164206
+      },
+      {
+       "name": "ifInUcastPkts",
+       "val": 1685
+      },
+      {
+       "name": "ifInNUcastPkts",
+       "val": 17
+      },
+      {
+       "name": "ifInDiscards",
+       "val": 0
+      },
+      {
+       "name": "ifOutOctets",
+       "val": 277549
+      },
+      {
+       "name": "ifOutUcastPkts",
+       "val": 1659
+      },
+      {
+       "name": "ifOutNUcastPkts",
+       "val": 1654
+      },
+      {
+       "name": "ifOutDiscards",
+       "val": 0
+      },
+      {
+       "name": "ifInMulticastPkts",
+       "val": 2
+      },
+      {
+       "name": "ifInBroadcastPkts",
+       "val": 15
+      },
+      {
+       "name": "ifOutMulticastPkts",
+       "val": 1621
+      },
+      {
+       "name": "ifOutBroadcastPkts",
+       "val": 33
+      }
+     ]
+    },
+    {
+     "type": "lang('port','lblEther')",
+     "cnts": [
+      {
+       "name": "dot3StatsAlignmentErrors",
+       "val": 0
+      },
+      {
+       "name": "dot3StatsFCSErrors",
+       "val": 0
+      },
+      {
+       "name": "dot3StatsSingleCollisionFrames",
+       "val": 0
+      },
+      {
+       "name": "dot3StatsMultipleCollisionFrames",
+       "val": 0
+      },
+      {
+       "name": "dot3StatsDeferredTransmissions",
+       "val": 0
+      },
+      {
+       "name": "dot3StatsLateCollisions",
+       "val": 0
+      },
+      {
+       "name": "dot3StatsExcessiveCollisions",
+       "val": 0
+      },
+      {
+       "name": "dot3StatsFrameTooLongs",
+       "val": 0
+      },
+      {
+       "name": "dot3StatsSymbolErrors",
+       "val": 0
+      },
+      {
+       "name": "dot3ControlInUnknownOpcodes",
+       "val": 0
+      },
+      {
+       "name": "dot3InPauseFrames ",
+       "val": 0
+      },
+      {
+       "name": "dot3OutPauseFrames ",
+       "val": 0
+      }
+     ]
+    },
+    {
+     "type": "lang('port','lblRmon')",
+     "cnts": [
+      {
+       "name": "etherStatsDropEvents",
+       "val": 0
+      },
+      {
+       "name": "etherStatsOctets",
+       "val": 164206
+      },
+      {
+       "name": "etherStatsPkts",
+       "val": 1702
+      },
+      {
+       "name": "etherStatsBroadcastPkts",
+       "val": 15
+      },
+      {
+       "name": "etherStatsMulticastPkts",
+       "val": 2
+      },
+      {
+       "name": "etherStatsCRCAlignErrors",
+       "val": 0
+      },
+      {
+       "name": "etherStatsUnderSizePkts",
+       "val": 0
+      },
+      {
+       "name": "etherStatsOverSizePkts",
+       "val": 5
+      },
+      {
+       "name": "etherStatsFragments",
+       "val": 0
+      },
+      {
+       "name": "etherStatsJabbers",
+       "val": 0
+      },
+      {
+       "name": "etherStatsCollisions",
+       "val": 0
+      },
+      {
+       "name": "etherStatsPkts64Octets",
+       "val": 92
+      },
+      {
+       "name": "etherStatsPkts65to127Octets",
+       "val": 1605
+      },
+      {
+       "name": "etherStatsPkts128to255Octets",
+       "val": 4
+      },
+      {
+       "name": "etherStatsPkts256to511Octets",
+       "val": 1
+      },
+      {
+       "name": "etherStatsPkts512to1023Octets",
+       "val": 0
+      },
+      {
+       "name": "etherStatsPkts1024to1518Octets",
+       "val": 0
+      }
+     ]
+    }
+   ]
+  }
+ },
+ "port_bandwidth": {
+  "data": {
+   "ticks": [
+    [
+     0,
+     "TE1"
+    ],
+    [
+     1,
+     "TE2"
+    ],
+    [
+     2,
+     "TE3"
+    ],
+    [
+     3,
+     "TE4"
+    ],
+    [
+     4,
+     "TE5"
+    ],
+    [
+     5,
+     "TE6"
+    ],
+    [
+     6,
+     "TE7"
+    ],
+    [
+     7,
+     "TE8"
+    ],
+    [
+     8,
+     " "
+    ]
+   ],
+   "plotDataTx": [
+    {
+     "label": "10Gbps",
+     "color": "#EC33FF",
+     "data": [
+      [
+       0,
+       0
+      ],
+      [
+       0,
+       1
+      ]
+     ]
+    },
+    {
+     "label": "1000Mbps",
+     "color": "#73FF75"
+    },
+    {
+     "label": "100Mbps",
+     "color": "#FFBB73"
+    },
+    {
+     "label": "10Mbps",
+     "color": "#AFFEFF"
+    },
+    {
+     "label": "Link Down",
+     "color": "#FFFFFF",
+     "data": [
+      [
+       0,
+       2
+      ],
+      [
+       0,
+       3
+      ],
+      [
+       0,
+       4
+      ],
+      [
+       0,
+       5
+      ],
+      [
+       0,
+       6
+      ],
+      [
+       0,
+       7
+      ]
+     ]
+    }
+   ],
+   "plotDataRx": [
+    {
+     "label": "10Gbps",
+     "color": "#EC33FF",
+     "data": [
+      [
+       0,
+       0
+      ],
+      [
+       0,
+       1
+      ]
+     ]
+    },
+    {
+     "label": "1000Mbps",
+     "color": "#73FF75"
+    },
+    {
+     "label": "100Mbps",
+     "color": "#FFBB73"
+    },
+    {
+     "label": "10Mbps",
+     "color": "#AFFEFF"
+    },
+    {
+     "label": "Link Down",
+     "color": "#FFFFFF",
+     "data": [
+      [
+       0,
+       2
+      ],
+      [
+       0,
+       3
+      ],
+      [
+       0,
+       4
+      ],
+      [
+       0,
+       5
+      ],
+      [
+       0,
+       6
+      ],
+      [
+       0,
+       7
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ "port_config": null,
+ "port_status": null,
+ "lag_info": {
+  "data": {
+   "balanceType": "mac",
+   "lags": [
+    {
+     "lagname": "",
+     "lacpState": false,
+     "active": false,
+     "activeMbr": "",
+     "standbyMbr": ""
+    },
+    {
+     "lagname": "",
+     "lacpState": false,
+     "active": false,
+     "activeMbr": "",
+     "standbyMbr": ""
+    },
+    {
+     "lagname": "",
+     "lacpState": false,
+     "active": false,
+     "activeMbr": "",
+     "standbyMbr": ""
+    },
+    {
+     "lagname": "",
+     "lacpState": false,
+     "active": false,
+     "activeMbr": "",
+     "standbyMbr": ""
+    },
+    {
+     "lagname": "",
+     "lacpState": false,
+     "active": false,
+     "activeMbr": "",
+     "standbyMbr": ""
+    },
+    {
+     "lagname": "",
+     "lacpState": false,
+     "active": false,
+     "activeMbr": "",
+     "standbyMbr": ""
+    },
+    {
+     "lagname": "",
+     "lacpState": false,
+     "active": false,
+     "activeMbr": "",
+     "standbyMbr": ""
+    },
+    {
+     "lagname": "",
+     "lacpState": false,
+     "active": false,
+     "activeMbr": "",
+     "standbyMbr": ""
+    }
+   ]
+  }
+ },
+ "syslog": {
+  "data": {
+   "logs": [
+    {
+     "idx": 1,
+     "time": "Nov 01 2026 23:09:54",
+     "sev": "notice",
+     "desc": "AAA-0-CONNECT: New http connection for user admin, source 192.168.1.120 ACCEPTED"
+    },
+    {
+     "idx": 2,
+     "time": "Dec 31 2024 19:00:20",
+     "sev": "notice",
+     "desc": "PORT-5-LINK_UP: Interface TenGigabitEthernet1 link up, aggregated (1)"
+    },
+    {
+     "idx": 3,
+     "time": "Dec 31 2024 19:00:20",
+     "sev": "notice",
+     "desc": "PORT-5-LINK_DOWN: Interface TenGigabitEthernet1 link down, aggregated (1)"
+    },
+    {
+     "idx": 4,
+     "time": "Dec 31 2024 19:00:20",
+     "sev": "notice",
+     "desc": "PORT-5-LINK_UP: Interface TenGigabitEthernet1 link up"
+    },
+    {
+     "idx": 5,
+     "time": "Dec 31 2024 19:00:20",
+     "sev": "notice",
+     "desc": "PORT-5-LINK_DOWN: Interface TenGigabitEthernet1 link down"
+    }
+   ]
+  }
+ },
+ "panel_info": {
+  "data": {
+   "ports": [
+    {
+     "autoNego": true,
+     "linkup": true,
+     "speed": "10000",
+     "dupFull": true,
+     "media": "fiber"
+    },
+    {
+     "autoNego": true,
+     "linkup": true,
+     "speed": "10000",
+     "dupFull": true,
+     "media": "fiber"
+    },
+    {
+     "autoNego": true,
+     "linkup": false,
+     "media": "fiber"
+    },
+    {
+     "autoNego": true,
+     "linkup": false,
+     "media": "fiber"
+    },
+    {
+     "autoNego": true,
+     "linkup": false,
+     "media": "fiber"
+    },
+    {
+     "autoNego": true,
+     "linkup": false,
+     "media": "fiber"
+    },
+    {
+     "autoNego": true,
+     "linkup": false,
+     "media": "fiber"
+    },
+    {
+     "autoNego": true,
+     "linkup": false,
+     "media": "fiber"
+    }
+   ]
+  }
+ },
+ "panel_layout": {
+  "data": {
+   "logoImg": "logo_switch_panel.png",
+   "COPPER_LED_NOLINK": "Copper_LED.png",
+   "COPPER_LED_LINKUP_10M": "Copper_LED_linkup_10M.png",
+   "COPPER_LED_LINKUP_100M": "Copper_LED_linkup_100M.png",
+   "COPPER_LED_LINKUP_1000M": "Copper_LED_linkup_1000M.png",
+   "COPPER_RJ45_NOLINK_BOT": "RJ45_nolink_bot.png",
+   "COPPER_RJ45_NOLINK_TOP": "RJ45_nolink_top.png",
+   "COPPER_RJ45_LINKUP_BOT": "RJ45_linkup_bot.png",
+   "COPPER_RJ45_LINKUP_TOP": "RJ45_linkup_top.png",
+   "COPPER_RJ45_LINKUP_10M_BOT": "RJ45_linkup_bot.png",
+   "COPPER_RJ45_LINKUP_10M_TOP": "RJ45_linkup_top.png",
+   "COPPER_RJ45_LINKUP_100M_BOT": "RJ45_linkup_bot.png",
+   "COPPER_RJ45_LINKUP_100M_TOP": "RJ45_linkup_top.png",
+   "COPPER_RJ45_LINKUP_1000M_BOT": "RJ45_linkup_bot.png",
+   "COPPER_RJ45_LINKUP_1000M_TOP": "RJ45_linkup_top.png",
+   "FIBER_NOLINK": "Fiber.png",
+   "FIBER_LINKUP": "Fiber_linkup.png",
+   "FIBER_LED_NOLINK": "Copper_LED.png",
+   "FIBER_LED_LINKUP_10M": "Copper_LED_linkup_10M.png",
+   "FIBER_LED_LINKUP_100M": "Copper_LED_linkup_100M.png",
+   "FIBER_LED_LINKUP_1000M": "Copper_LED_linkup_1000M.png",
+   "bgImg": "switch_panel.png",
+   "layout": [
+    {
+     "portStart": 1,
+     "portEnd": 8,
+     "imgType": 3,
+     "imgWidth": 30,
+     "alignType": 0,
+     "oddYpos": 62,
+     "evenYpos": -1,
+     "baseXpos": 290,
+     "groupNum": 1,
+     "gapWidth": 10
+    },
+    {
+     "portStart": 1,
+     "portEnd": 8,
+     "imgType": 5,
+     "imgWidth": 30,
+     "alignType": 0,
+     "oddYpos": 62,
+     "evenYpos": -1,
+     "baseXpos": 290,
+     "groupNum": 1,
+     "gapWidth": 10
+    }
+   ]
+  }
+ },
+ "vlan_config": {
+  "data": {
+   "vlan": 1,
+   "vlans": [
+    {
+     "val": 1,
+     "name": "default"
+    },
+    {
+     "val": 5,
+     "name": "TOR02-IOT"
+    },
+    {
+     "val": 6,
+     "name": "TOR02-CAM"
+    },
+    {
+     "val": 7,
+     "name": "TOR02-GUEST"
+    },
+    {
+     "val": 9,
+     "name": "TOR02-CORE"
+    },
+    {
+     "val": 10,
+     "name": "TOR02-MGMT"
+    },
+    {
+     "val": 11,
+     "name": "TOR02-HVM"
+    },
+    {
+     "val": 15,
+     "name": "TOR02-WORK"
+    },
+    {
+     "val": 20,
+     "name": "TOR02-SRV"
+    },
+    {
+     "val": 30,
+     "name": "TOR02-AI"
+    },
+    {
+     "val": 99,
+     "name": "VLAN0099"
+    },
+    {
+     "val": 105,
+     "name": "TOR01-WAN1"
+    },
+    {
+     "val": 106,
+     "name": "TOR01-WAN2"
+    },
+    {
+     "val": 110,
+     "name": "TOR01-Management"
+    },
+    {
+     "val": 120,
+     "name": "TOR01-NetworkManagement"
+    },
+    {
+     "val": 130,
+     "name": "TOR01-Storage"
+    },
+    {
+     "val": 140,
+     "name": "TOR01-Workstations"
+    },
+    {
+     "val": 150,
+     "name": "TOR01-Servers"
+    },
+    {
+     "val": 160,
+     "name": "TOR01-ServersDMZ"
+    },
+    {
+     "val": 170,
+     "name": "TOR01-CCTV"
+    },
+    {
+     "val": 180,
+     "name": "TOR01-IOT"
+    },
+    {
+     "val": 190,
+     "name": "TOR01-GuestWifi"
+    }
+   ],
+   "ports": [
+    {
+     "mode": 2,
+     "membership": 3,
+     "forbidden": false,
+     "pvid": true
+    },
+    {
+     "mode": 2,
+     "membership": 0,
+     "forbidden": false,
+     "pvid": false
+    },
+    {
+     "mode": 2,
+     "membership": 0,
+     "forbidden": true,
+     "pvid": false
+    },
+    {
+     "mode": 2,
+     "membership": 3,
+     "forbidden": false,
+     "pvid": true
+    },
+    {
+     "mode": 2,
+     "membership": 3,
+     "forbidden": true,
+     "pvid": true
+    },
+    {
+     "mode": 2,
+     "membership": 3,
+     "forbidden": true,
+     "pvid": true
+    },
+    {
+     "mode": 2,
+     "membership": 3,
+     "forbidden": true,
+     "pvid": true
+    },
+    {
+     "mode": 2,
+     "membership": 3,
+     "forbidden": true,
+     "pvid": true
+    },
+    {
+     "mode": 2,
+     "membership": 3,
+     "forbidden": false,
+     "pvid": true
+    },
+    {
+     "mode": 2,
+     "membership": 3,
+     "forbidden": false,
+     "pvid": true
+    },
+    {
+     "mode": 2,
+     "membership": 3,
+     "forbidden": false,
+     "pvid": true
+    },
+    {
+     "mode": 2,
+     "membership": 3,
+     "forbidden": false,
+     "pvid": true
+    },
+    {
+     "mode": 2,
+     "membership": 3,
+     "forbidden": false,
+     "pvid": true
+    },
+    {
+     "mode": 2,
+     "membership": 3,
+     "forbidden": false,
+     "pvid": true
+    },
+    {
+     "mode": 2,
+     "membership": 3,
+     "forbidden": false,
+     "pvid": true
+    },
+    {
+     "mode": 2,
+     "membership": 3,
+     "forbidden": false,
+     "pvid": true
+    }
+   ]
+  }
+ },
+ "vlan_membership": {
+  "data": {
+   "ports": [
+    {
+     "mode": 2,
+     "adminVlans": "1UP, 5T, 6T, 7T, 9T, 10T, 11T, 15T, 20T, 30T, 99T, 105T, 106T, 110T, 120T, 130T, 140T, 150T, 160T, 170T, 180T, 190T",
+     "operVlans": "1UP, 5T, 6T, 7T, 9T, 10T, 11T, 15T, 20T, 30T, 99T, 105T, 106T, 110T, 120T, 130T, 140T, 150T, 160T, 170T, 180T, 190T"
+    },
+    {
+     "mode": 2,
+     "adminVlans": "5T, 6T, 7T, 9T, 10T, 11UP, 15T, 20T, 30T, 105T, 106T, 110T, 120T, 130T, 140T, 150T, 160T, 170T, 180T, 190T",
+     "operVlans": "5T, 6T, 7T, 9T, 10T, 11UP, 15T, 20T, 30T, 105T, 106T, 110T, 120T, 130T, 140T, 150T, 160T, 170T, 180T, 190T"
+    },
+    {
+     "mode": 2,
+     "adminVlans": "1F, 105T, 106T, 110T, 120UP, 130T, 140T, 150T, 160T, 170T, 180T, 190T",
+     "operVlans": "1F, 105T, 106T, 110T, 120UP, 130T, 140T, 150T, 160T, 170T, 180T, 190T"
+    },
+    {
+     "mode": 2,
+     "adminVlans": "1UP, 105T, 106T, 110T, 120T, 130T, 140T, 150T, 160T, 170T, 180T, 190T",
+     "operVlans": "1UP, 105T, 106T, 110T, 120T, 130T, 140T, 150T, 160T, 170T, 180T, 190T"
+    },
+    {
+     "mode": 2,
+     "adminVlans": "1UP, 105T, 106T, 110T, 120T, 130T, 140T, 150T, 160T, 170T, 180T, 190T",
+     "operVlans": "1FP, 105T, 106T, 110T, 120T, 130T, 140T, 150T, 160T, 170T, 180T, 190T"
+    },
+    {
+     "mode": 2,
+     "adminVlans": "1UP, 105T, 106T, 110T, 120T, 130T, 140T, 150T, 160T, 170T, 180T, 190T",
+     "operVlans": "1FP, 105T, 106T, 110T, 120T, 130T, 140T, 150T, 160T, 170T, 180T, 190T"
+    },
+    {
+     "mode": 2,
+     "adminVlans": "1UP, 105T, 106T, 110T, 120T, 130T, 140T, 150T, 160T, 170T, 180T, 190T",
+     "operVlans": "1FP, 105T, 106T, 110T, 120T, 130T, 140T, 150T, 160T, 170T, 180T, 190T"
+    },
+    {
+     "mode": 2,
+     "adminVlans": "1UP, 105T, 106T, 110T, 120T, 130T, 140T, 150T, 160T, 170T, 180T, 190T",
+     "operVlans": "1FP, 105T, 106T, 110T, 120T, 130T, 140T, 150T, 160T, 170T, 180T, 190T"
+    },
+    {
+     "mode": 2,
+     "adminVlans": "1UP",
+     "operVlans": "1UP"
+    },
+    {
+     "mode": 2,
+     "adminVlans": "1UP",
+     "operVlans": "1UP"
+    },
+    {
+     "mode": 2,
+     "adminVlans": "1UP",
+     "operVlans": "1UP"
+    },
+    {
+     "mode": 2,
+     "adminVlans": "1UP",
+     "operVlans": "1UP"
+    },
+    {
+     "mode": 2,
+     "adminVlans": "1UP",
+     "operVlans": "1UP"
+    },
+    {
+     "mode": 2,
+     "adminVlans": "1UP",
+     "operVlans": "1UP"
+    },
+    {
+     "mode": 2,
+     "adminVlans": "1UP",
+     "operVlans": "1UP"
+    },
+    {
+     "mode": 2,
+     "adminVlans": "1UP",
+     "operVlans": "1UP"
+    }
+   ]
+  }
+ },
+ "vlan_port": {
+  "data": {
+   "ports": [
+    {
+     "mode": 2,
+     "pvid": 1,
+     "accFrameType": 0,
+     "ingressFilter": true,
+     "uplink": false,
+     "tpid": "0x8100"
+    },
+    {
+     "mode": 2,
+     "pvid": 11,
+     "accFrameType": 0,
+     "ingressFilter": true,
+     "uplink": false,
+     "tpid": "0x8100"
+    },
+    {
+     "mode": 2,
+     "pvid": 120,
+     "accFrameType": 0,
+     "ingressFilter": true,
+     "uplink": false,
+     "tpid": "0x8100"
+    },
+    {
+     "mode": 2,
+     "pvid": 1,
+     "accFrameType": 0,
+     "ingressFilter": true,
+     "uplink": false,
+     "tpid": "0x8100"
+    },
+    {
+     "mode": 2,
+     "pvid": 4095,
+     "accFrameType": 0,
+     "ingressFilter": true,
+     "uplink": false,
+     "tpid": "0x8100"
+    },
+    {
+     "mode": 2,
+     "pvid": 4095,
+     "accFrameType": 0,
+     "ingressFilter": true,
+     "uplink": false,
+     "tpid": "0x8100"
+    },
+    {
+     "mode": 2,
+     "pvid": 4095,
+     "accFrameType": 0,
+     "ingressFilter": true,
+     "uplink": false,
+     "tpid": "0x8100"
+    },
+    {
+     "mode": 2,
+     "pvid": 4095,
+     "accFrameType": 0,
+     "ingressFilter": true,
+     "uplink": false,
+     "tpid": "0x8100"
+    },
+    {
+     "mode": 2,
+     "pvid": 1,
+     "accFrameType": 0,
+     "ingressFilter": true,
+     "uplink": false,
+     "tpid": "0x8100"
+    },
+    {
+     "mode": 2,
+     "pvid": 1,
+     "accFrameType": 0,
+     "ingressFilter": true,
+     "uplink": false,
+     "tpid": "0x8100"
+    },
+    {
+     "mode": 2,
+     "pvid": 1,
+     "accFrameType": 0,
+     "ingressFilter": true,
+     "uplink": false,
+     "tpid": "0x8100"
+    },
+    {
+     "mode": 2,
+     "pvid": 1,
+     "accFrameType": 0,
+     "ingressFilter": true,
+     "uplink": false,
+     "tpid": "0x8100"
+    },
+    {
+     "mode": 2,
+     "pvid": 1,
+     "accFrameType": 0,
+     "ingressFilter": true,
+     "uplink": false,
+     "tpid": "0x8100"
+    },
+    {
+     "mode": 2,
+     "pvid": 1,
+     "accFrameType": 0,
+     "ingressFilter": true,
+     "uplink": false,
+     "tpid": "0x8100"
+    },
+    {
+     "mode": 2,
+     "pvid": 1,
+     "accFrameType": 0,
+     "ingressFilter": true,
+     "uplink": false,
+     "tpid": "0x8100"
+    },
+    {
+     "mode": 2,
+     "pvid": 1,
+     "accFrameType": 0,
+     "ingressFilter": true,
+     "uplink": false,
+     "tpid": "0x8100"
+    }
+   ]
+  }
+ },
+ "mac_dynamic": {
+  "data": {
+   "aging_time": 300,
+   "aging_time_min": 10,
+   "aging_time_max": 630,
+   "aging_time_dflt": 300,
+   "entries": [
+    {
+     "vlan": 120,
+     "macAddr": "00:1C:7F:62:62:16",
+     "port": "TE1",
+     "key": "001C7F626216_120_0"
+    }
+   ]
+  }
+ },
+ "mac_static": {
+  "data": {
+   "entries": [
+    {
+     "vlan": 0,
+     "macAddr": "",
+     "port": ""
+    }
+   ]
+  }
+ },
+ "mac_status": {
+  "data": {
+   "entries": [
+    {
+     "vlan": 120,
+     "macAddr": "1A:4B:24:A3:BE:DF",
+     "port": "lang('mac','lblCpuPort')",
+     "type": "lang('mac','lblMacTypeManage')"
+    },
+    {
+     "vlan": 120,
+     "macAddr": "00:1C:7F:62:62:16",
+     "port": "TE1",
+     "type": "lang('mac','lblMacTypeDynamic')"
+    }
+   ]
+  }
+ },
+ "line_config": {
+  "data": "\n"
+ },
+ "lldp_neighbors": {
+  "neighbors": [],
+  "neighbor_count": 0
+ },
+ "lldp_neighbor_detail": {
+  "data": "\n"
+ },
+ "lldp_config": {
+  "data": "\n"
+ },
+ "lldp_status": {
+  "data": "\n"
+ },
+ "lldp_settings": {
+  "data": "\n"
+ },
+ "lldp_global": {
+  "data": "\n"
+ },
+ "lldp_port": {
+  "data": "\n"
+ },
+ "lldp_port_config": {
+  "data": "\n"
+ }
+}

@@ -1,0 +1,17 @@
+# ChineseSwitchParser API host registry.
+# Copy to hosts.yaml (git-ignored) and fill in. NEVER commit real credentials.
+# Password values may use the env: prefix so secrets stay out of this file:
+#   password: env:VIMIN33_PASSWORD
+
+switches:
+  - name: vimin-33
+    url: http://10.41.8.33
+    username: admin
+    password: admin
+    model: vm-s100-0800ms   # optional; omit to auto-detect on first use
+
+  # - name: sodola-34
+  #   url: http://10.41.8.34
+  #   username: admin
+  #   password: env:SODOLA34_PASSWORD
+  #   # model omitted -> auto-detected
