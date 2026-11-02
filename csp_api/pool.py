@@ -31,10 +31,20 @@ RESOURCE_SECTIONS: Dict[str, Dict[str, List[str]]] = {
         "mac_table": ["mac_dynamic", "mac_static", "mac_status"],
         "lldp": ["lldp_neighbors"],
         "syslog": ["syslog"],
+        "l3": ["mgmt_ip", "dns", "time", "l3_interfaces", "l3_routes", "l3_arp"],
+        "stp": ["stp_global", "stp_ports", "port_bandwidth"],
+        "optics": ["optical_ddm", "port_bandwidth"],
+        "mirror": ["mirror_sessions"],
+        "firmware": ["firmware_images", "firmware_img"],
+        "users": ["local_users"],
+        "snmp": ["snmp_communities"],
     },
 }
 
-RESOURCES = ("info", "ports", "vlans", "mac_table", "lldp", "syslog")
+RESOURCES = (
+    "info", "ports", "vlans", "mac_table", "lldp", "syslog",
+    "l3", "stp", "optics", "mirror", "firmware", "users", "snmp",
+)
 
 
 class SwitchUnavailable(RuntimeError):

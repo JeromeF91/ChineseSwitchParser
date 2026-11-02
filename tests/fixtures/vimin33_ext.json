@@ -1,0 +1,695 @@
+{
+ "port_bandwidth": {
+  "data": {
+   "ticks": [
+    [
+     0,
+     "TE1"
+    ],
+    [
+     1,
+     "TE2"
+    ],
+    [
+     2,
+     "TE3"
+    ],
+    [
+     3,
+     "TE4"
+    ],
+    [
+     4,
+     "TE5"
+    ],
+    [
+     5,
+     "TE6"
+    ],
+    [
+     6,
+     "TE7"
+    ],
+    [
+     7,
+     "TE8"
+    ],
+    [
+     8,
+     " "
+    ]
+   ],
+   "plotDataTx": [
+    {
+     "label": "10Gbps",
+     "color": "#EC33FF",
+     "data": [
+      [
+       0,
+       0
+      ],
+      [
+       0,
+       1
+      ]
+     ]
+    },
+    {
+     "label": "1000Mbps",
+     "color": "#73FF75"
+    },
+    {
+     "label": "100Mbps",
+     "color": "#FFBB73"
+    },
+    {
+     "label": "10Mbps",
+     "color": "#AFFEFF"
+    },
+    {
+     "label": "Link Down",
+     "color": "#FFFFFF",
+     "data": [
+      [
+       0,
+       2
+      ],
+      [
+       0,
+       3
+      ],
+      [
+       0,
+       4
+      ],
+      [
+       0,
+       5
+      ],
+      [
+       0,
+       6
+      ],
+      [
+       0,
+       7
+      ]
+     ]
+    }
+   ],
+   "plotDataRx": [
+    {
+     "label": "10Gbps",
+     "color": "#EC33FF",
+     "data": [
+      [
+       0,
+       0
+      ],
+      [
+       0,
+       1
+      ]
+     ]
+    },
+    {
+     "label": "1000Mbps",
+     "color": "#73FF75"
+    },
+    {
+     "label": "100Mbps",
+     "color": "#FFBB73"
+    },
+    {
+     "label": "10Mbps",
+     "color": "#AFFEFF"
+    },
+    {
+     "label": "Link Down",
+     "color": "#FFFFFF",
+     "data": [
+      [
+       0,
+       2
+      ],
+      [
+       0,
+       3
+      ],
+      [
+       0,
+       4
+      ],
+      [
+       0,
+       5
+      ],
+      [
+       0,
+       6
+      ],
+      [
+       0,
+       7
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ "mgmt_ip": {
+  "data": {
+   "type": "static",
+   "ip": "10.41.8.33",
+   "staticIp": "10.41.8.33",
+   "staticMask": "255.255.255.224",
+   "adminGw": "10.41.8.62",
+   "operGw": "10.41.8.62",
+   "ipv6AutoAddr": false,
+   "dhcpv6": false,
+   "prefix": 0,
+   "staticIpv6": "::",
+   "staticIpv6Gateway": "",
+   "linkLocalAddr": "fe80::1a4b:24ff:fea3:bedf/64",
+   "currIpv6Gw": [
+    "::"
+   ]
+  }
+ },
+ "dns": {
+  "data": {
+   "maxlen": 4,
+   "state": 1,
+   "hostname": "",
+   "dnss": [
+    {
+     "ip": "10.41.8.62",
+     "pref": 0
+    }
+   ]
+  }
+ },
+ "time": {
+  "data": {
+   "sntp": true,
+   "isv4": true,
+   "srvHost": "10.41.8.62",
+   "port": 123,
+   "defPort": 123,
+   "time": 1793577363,
+   "timeStr": "2026-11-01 23:56:03 UTC-5 ",
+   "timezone": -300,
+   "dlsType": 3,
+   "dlsOffset": 60,
+   "dlsRecDayS": 0,
+   "dlsRecWeekS": 2,
+   "dlsRecMonthS": 3,
+   "dlsRecTimeS": "02:00",
+   "dlsRecDayE": 0,
+   "dlsRecWeekE": 1,
+   "dlsRecMonthE": 11,
+   "dlsRecTimeE": "02:00"
+  }
+ },
+ "l3_interfaces": {
+  "data": {
+   "empty": 0
+  }
+ },
+ "l3_routes": {
+  "data": {
+   "route": [
+    {
+     "dip": "0.0.0.0",
+     "plen": 0,
+     "type": 1,
+     "nextHop": "10.41.8.62",
+     "metric": 1,
+     "adminDistance": 1,
+     "intf": "MGMT VLAN*"
+    },
+    {
+     "dip": "10.41.8.32",
+     "plen": 27,
+     "type": 2,
+     "intf": "MGMT VLAN*"
+    }
+   ]
+  }
+ },
+ "l3_arp": {
+  "data": {
+   "aging": 1200,
+   "aging_min": 15,
+   "aging_max": 21600,
+   "aging_dflt": 1200,
+   "entries": [
+    {
+     "intf": "VLAN 120",
+     "ip": "10.41.8.62",
+     "mac": "00:1c:7f:62:62:16",
+     "vlan": 120,
+     "static": false
+    }
+   ]
+  }
+ },
+ "stp_global": {
+  "data": {
+   "enable": false,
+   "mode": "rstp",
+   "pathcost_method": "long",
+   "bpduFwd": "flooding",
+   "pri": 32768,
+   "pri_min": 0,
+   "pri_max": 61440,
+   "pri_dflt": 32768,
+   "helloTime": 2,
+   "helloTime_min": 1,
+   "helloTime_max": 10,
+   "helloTime_dflt": 2,
+   "age": 20,
+   "age_min": 6,
+   "age_max": 40,
+   "age_dflt": 20,
+   "fwdDelay": 15,
+   "fwdDelay_min": 4,
+   "fwdDelay_max": 30,
+   "fwdDelay_dflt": 15,
+   "txCnt": 6,
+   "txCnt_min": 1,
+   "txCnt_max": 10,
+   "txCnt_dflt": 6,
+   "regionName": "1A:4B:24:A3:BE:DF",
+   "regionName_maxlen": 32,
+   "revision": 0,
+   "revision_min": 0,
+   "revision_max": 65535,
+   "revision_dflt": 0,
+   "maxhop": 20,
+   "maxhop_min": 1,
+   "maxhop_max": 40,
+   "maxhop_dflt": 20,
+   "bridgeId": "32768-1A:4B:24:A3:BE:DF",
+   "rootBridgeId": "    0-00:00:00:00:00:00",
+   "rootCost": 0,
+   "tcCnt": 0,
+   "tcLastTime": "lang('stp','txtDayHrMinSecArg',[0,0,0,0])"
+  }
+ },
+ "stp_ports": {
+  "data": {
+   "ports": [
+    {
+     "enable": true,
+     "pri": 128,
+     "pathcost": 2000,
+     "bpduGuard": false,
+     "bpduFilter": false,
+     "edge_oper": false,
+     "p2p_oper": true,
+     "role": "lang('stp','txtDisabled')",
+     "state": "lang('stp','txtForwarding')",
+     "desgBridge": "    0-00:00:00:00:00:00",
+     "desgPortId": "128-1",
+     "desgCost": 2000
+    },
+    {
+     "enable": true,
+     "pri": 128,
+     "pathcost": 2000,
+     "bpduGuard": false,
+     "bpduFilter": false,
+     "edge_oper": false,
+     "p2p_oper": true,
+     "role": "lang('stp','txtDisabled')",
+     "state": "lang('stp','txtForwarding')",
+     "desgBridge": "    0-00:00:00:00:00:00",
+     "desgPortId": "128-2",
+     "desgCost": 2000
+    },
+    {
+     "enable": true,
+     "pri": 128,
+     "pathcost": 2000,
+     "bpduGuard": false,
+     "bpduFilter": false,
+     "edge_oper": false,
+     "p2p_oper": false,
+     "role": "lang('stp','txtDisabled')",
+     "state": "lang('stp','txtDisabled')",
+     "desgBridge": "    0-00:00:00:00:00:00",
+     "desgPortId": "128-3",
+     "desgCost": 2000
+    },
+    {
+     "enable": true,
+     "pri": 128,
+     "pathcost": 2000,
+     "bpduGuard": false,
+     "bpduFilter": false,
+     "edge_oper": false,
+     "p2p_oper": false,
+     "role": "lang('stp','txtDisabled')",
+     "state": "lang('stp','txtDisabled')",
+     "desgBridge": "    0-00:00:00:00:00:00",
+     "desgPortId": "128-4",
+     "desgCost": 2000
+    },
+    {
+     "enable": true,
+     "pri": 128,
+     "pathcost": 2000,
+     "bpduGuard": false,
+     "bpduFilter": false,
+     "edge_oper": false,
+     "p2p_oper": false,
+     "role": "lang('stp','txtDisabled')",
+     "state": "lang('stp','txtDisabled')",
+     "desgBridge": "    0-00:00:00:00:00:00",
+     "desgPortId": "128-5",
+     "desgCost": 2000
+    },
+    {
+     "enable": true,
+     "pri": 128,
+     "pathcost": 2000,
+     "bpduGuard": false,
+     "bpduFilter": false,
+     "edge_oper": false,
+     "p2p_oper": false,
+     "role": "lang('stp','txtDisabled')",
+     "state": "lang('stp','txtDisabled')",
+     "desgBridge": "    0-00:00:00:00:00:00",
+     "desgPortId": "128-6",
+     "desgCost": 2000
+    },
+    {
+     "enable": true,
+     "pri": 128,
+     "pathcost": 2000,
+     "bpduGuard": false,
+     "bpduFilter": false,
+     "edge_oper": false,
+     "p2p_oper": false,
+     "role": "lang('stp','txtDisabled')",
+     "state": "lang('stp','txtDisabled')",
+     "desgBridge": "    0-00:00:00:00:00:00",
+     "desgPortId": "128-7",
+     "desgCost": 2000
+    },
+    {
+     "enable": true,
+     "pri": 128,
+     "pathcost": 2000,
+     "bpduGuard": false,
+     "bpduFilter": false,
+     "edge_oper": false,
+     "p2p_oper": false,
+     "role": "lang('stp','txtDisabled')",
+     "state": "lang('stp','txtDisabled')",
+     "desgBridge": "    0-00:00:00:00:00:00",
+     "desgPortId": "128-8",
+     "desgCost": 2000
+    },
+    {
+     "enable": true,
+     "pri": 128,
+     "pathcost": 20000,
+     "bpduGuard": false,
+     "bpduFilter": false,
+     "edge_oper": false,
+     "p2p_oper": false,
+     "role": "lang('stp','txtDisabled')",
+     "state": "lang('stp','txtDisabled')",
+     "desgBridge": "    0-00:00:00:00:00:00",
+     "desgPortId": "128-9",
+     "desgCost": 20000
+    },
+    {
+     "enable": true,
+     "pri": 128,
+     "pathcost": 20000,
+     "bpduGuard": false,
+     "bpduFilter": false,
+     "edge_oper": false,
+     "p2p_oper": false,
+     "role": "lang('stp','txtDisabled')",
+     "state": "lang('stp','txtDisabled')",
+     "desgBridge": "    0-00:00:00:00:00:00",
+     "desgPortId": "128-10",
+     "desgCost": 20000
+    },
+    {
+     "enable": true,
+     "pri": 128,
+     "pathcost": 20000,
+     "bpduGuard": false,
+     "bpduFilter": false,
+     "edge_oper": false,
+     "p2p_oper": false,
+     "role": "lang('stp','txtDisabled')",
+     "state": "lang('stp','txtDisabled')",
+     "desgBridge": "    0-00:00:00:00:00:00",
+     "desgPortId": "128-11",
+     "desgCost": 20000
+    },
+    {
+     "enable": true,
+     "pri": 128,
+     "pathcost": 20000,
+     "bpduGuard": false,
+     "bpduFilter": false,
+     "edge_oper": false,
+     "p2p_oper": false,
+     "role": "lang('stp','txtDisabled')",
+     "state": "lang('stp','txtDisabled')",
+     "desgBridge": "    0-00:00:00:00:00:00",
+     "desgPortId": "128-12",
+     "desgCost": 20000
+    },
+    {
+     "enable": true,
+     "pri": 128,
+     "pathcost": 20000,
+     "bpduGuard": false,
+     "bpduFilter": false,
+     "edge_oper": false,
+     "p2p_oper": false,
+     "role": "lang('stp','txtDisabled')",
+     "state": "lang('stp','txtDisabled')",
+     "desgBridge": "    0-00:00:00:00:00:00",
+     "desgPortId": "128-13",
+     "desgCost": 20000
+    },
+    {
+     "enable": true,
+     "pri": 128,
+     "pathcost": 20000,
+     "bpduGuard": false,
+     "bpduFilter": false,
+     "edge_oper": false,
+     "p2p_oper": false,
+     "role": "lang('stp','txtDisabled')",
+     "state": "lang('stp','txtDisabled')",
+     "desgBridge": "    0-00:00:00:00:00:00",
+     "desgPortId": "128-14",
+     "desgCost": 20000
+    },
+    {
+     "enable": true,
+     "pri": 128,
+     "pathcost": 20000,
+     "bpduGuard": false,
+     "bpduFilter": false,
+     "edge_oper": false,
+     "p2p_oper": false,
+     "role": "lang('stp','txtDisabled')",
+     "state": "lang('stp','txtDisabled')",
+     "desgBridge": "    0-00:00:00:00:00:00",
+     "desgPortId": "128-15",
+     "desgCost": 20000
+    },
+    {
+     "enable": true,
+     "pri": 128,
+     "pathcost": 20000,
+     "bpduGuard": false,
+     "bpduFilter": false,
+     "edge_oper": false,
+     "p2p_oper": false,
+     "role": "lang('stp','txtDisabled')",
+     "state": "lang('stp','txtDisabled')",
+     "desgBridge": "    0-00:00:00:00:00:00",
+     "desgPortId": "128-16",
+     "desgCost": 20000
+    }
+   ]
+  }
+ },
+ "optical_ddm": {
+  "data": {
+   "ports": [
+    {
+     "port": 0,
+     "temp": " 38.64",
+     "volt": " 3.31",
+     "bias": " 5.60",
+     "txPwr": " 0.60(-2.19 dBm)",
+     "rxPwr": " 0.66(-1.83 dBm)",
+     "oe": "lang('diag','lblInsert')",
+     "los": "lang('diag','lblNormal')"
+    },
+    {
+     "port": 1,
+     "temp": "lang('diag','lblNS')",
+     "volt": "lang('diag','lblNS')",
+     "bias": "lang('diag','lblNS')",
+     "txPwr": "lang('diag','lblNS')",
+     "rxPwr": "lang('diag','lblNS')",
+     "oe": "lang('diag','lblInsert')",
+     "los": "lang('diag','lblNormal')"
+    },
+    {
+     "port": 2,
+     "temp": "lang('diag','lblNS')",
+     "volt": "lang('diag','lblNS')",
+     "bias": "lang('diag','lblNS')",
+     "txPwr": "lang('diag','lblNS')",
+     "rxPwr": "lang('diag','lblNS')",
+     "oe": "lang('diag','lblRemove')",
+     "los": "lang('diag','lblLoss')"
+    },
+    {
+     "port": 3,
+     "temp": "lang('diag','lblNS')",
+     "volt": "lang('diag','lblNS')",
+     "bias": "lang('diag','lblNS')",
+     "txPwr": "lang('diag','lblNS')",
+     "rxPwr": "lang('diag','lblNS')",
+     "oe": "lang('diag','lblRemove')",
+     "los": "lang('diag','lblLoss')"
+    },
+    {
+     "port": 4,
+     "temp": "lang('diag','lblNS')",
+     "volt": "lang('diag','lblNS')",
+     "bias": "lang('diag','lblNS')",
+     "txPwr": "lang('diag','lblNS')",
+     "rxPwr": "lang('diag','lblNS')",
+     "oe": "lang('diag','lblRemove')",
+     "los": "lang('diag','lblLoss')"
+    },
+    {
+     "port": 5,
+     "temp": "lang('diag','lblNS')",
+     "volt": "lang('diag','lblNS')",
+     "bias": "lang('diag','lblNS')",
+     "txPwr": "lang('diag','lblNS')",
+     "rxPwr": "lang('diag','lblNS')",
+     "oe": "lang('diag','lblRemove')",
+     "los": "lang('diag','lblLoss')"
+    },
+    {
+     "port": 6,
+     "temp": "lang('diag','lblNS')",
+     "volt": "lang('diag','lblNS')",
+     "bias": "lang('diag','lblNS')",
+     "txPwr": "lang('diag','lblNS')",
+     "rxPwr": "lang('diag','lblNS')",
+     "oe": "lang('diag','lblRemove')",
+     "los": "lang('diag','lblLoss')"
+    },
+    {
+     "port": 7,
+     "temp": "lang('diag','lblNS')",
+     "volt": "lang('diag','lblNS')",
+     "bias": "lang('diag','lblNS')",
+     "txPwr": "lang('diag','lblNS')",
+     "rxPwr": "lang('diag','lblNS')",
+     "oe": "lang('diag','lblRemove')",
+     "los": "lang('diag','lblLoss')"
+    }
+   ]
+  }
+ },
+ "mirror_sessions": {
+  "data": {
+   "sessions": [
+    {
+     "state": "lang('common','txtDisabled')",
+     "ingressState": "",
+     "sourceRxPort": "---",
+     "sourceTxPort": "---",
+     "dstPort": "---"
+    },
+    {
+     "state": "lang('common','txtDisabled')",
+     "ingressState": "",
+     "sourceRxPort": "---",
+     "sourceTxPort": "---",
+     "dstPort": "---"
+    },
+    {
+     "state": "lang('common','txtDisabled')",
+     "ingressState": "",
+     "sourceRxPort": "---",
+     "sourceTxPort": "---",
+     "dstPort": "---"
+    },
+    {
+     "state": "lang('common','txtDisabled')",
+     "ingressState": "",
+     "sourceRxPort": "---",
+     "sourceTxPort": "---",
+     "dstPort": "---"
+    }
+   ]
+  }
+ },
+ "firmware_images": {
+  "data": {
+   "dual_enable": 0,
+   "actIdx": 0,
+   "selIdx": 0,
+   "actVer": "",
+   "actName": "",
+   "actSize": 10720270,
+   "actTime": "2025-04-22 14:02:50\n"
+  }
+ },
+ "firmware_img": {
+  "data": {
+   "maxlen_srvHost": 255,
+   "maxlen_fileName": 128,
+   "imgName": [
+    "",
+    ""
+   ]
+  }
+ },
+ "local_users": {
+  "data": {
+   "users": [
+    {
+     "user": "admin",
+     "priv": 15
+    }
+   ]
+  }
+ },
+ "snmp_communities": {
+  "data": {
+   "empty": 0,
+   "communities": [
+    {
+     "idx": 0,
+     "commStr": "public",
+     "commType": "lang('snmp','lblBasic')",
+     "accessMode": "lang('snmp','lblReadOnly')",
+     "viewName": "all"
+    }
+   ]
+  }
+ }
+}

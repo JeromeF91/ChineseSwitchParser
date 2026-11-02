@@ -140,6 +140,29 @@ def test_raw_endpoint_sections(client):
     assert set(r.json()["data"]) == {"system_info", "cpu_memory"}
 
 
+def test_extended_routes_served(raw, monkeypatch):
+    """New resources (l3/stp/optics/...) route through the same machinery."""
+    import json as _json
+    from pathlib import Path as P
+
+    ext = _json.loads(
+        (P(__file__).parent / "fixtures" / "vimin33_ext.json").read_text()
+    )
+    merged = {**raw, **ext}
+    monkeypatch.setenv("CSP_API_TOKEN", "test-token")
+    app = create_app(pool=StubPool(merged), registry={HOST.name: HOST})
+    c = TestClient(app)
+    r = c.get("/switches/vimin-test/l3", headers=AUTH)
+    assert r.status_code == 200
+    assert r.json()["data"]["mgmt"]["ip"] == "10.41.8.33"
+    r = c.get("/switches/vimin-test/optics", headers=AUTH)
+    assert r.status_code == 200
+    assert r.json()["data"][0]["tx_power_dbm"] == -2.19
+    r = c.get("/switches/vimin-test/stp", headers=AUTH)
+    assert r.status_code == 200
+    assert r.json()["data"]["global_config"]["mode"] == "rstp"
+
+
 def test_registry_rejects_bad_names(tmp_path):
     from csp_api.registry import RegistryError, load_registry
 

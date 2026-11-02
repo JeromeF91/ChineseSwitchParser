@@ -48,7 +48,18 @@ Interactive docs: `http://127.0.0.1:8787/docs` (OpenAPI).
 | `GET /switches/{name}/mac-table` | merged dynamic/static/status, placeholders dropped |
 | `GET /switches/{name}/lldp` | neighbors (may be empty depending on firmware) |
 | `GET /switches/{name}/syslog` | device log entries |
+| `GET /switches/{name}/l3` | mgmt IP/mask/gw, DNS, SNTP/time, routes (typed), ARP |
+| `GET /switches/{name}/stp` | STP/RSTP global + per-port role/state/cost |
+| `GET /switches/{name}/optics` | SFP presence + DDM (temp/voltage/bias/TX-RX mW & dBm) |
+| `GET /switches/{name}/mirror` | port-mirror sessions |
+| `GET /switches/{name}/firmware` | image/active-slot status |
+| `GET /switches/{name}/users` | local accounts + privilege |
+| `GET /switches/{name}/snmp` | community strings — SENSITIVE, treat as credentials |
 | `GET /switches/{name}/raw?sections=a,b` | raw endpoint payloads |
+
+Device command surface: see
+[`docs/VIMIN_COMMAND_REFERENCE.md`](docs/VIMIN_COMMAND_REFERENCE.md)
+(258 GET / 257 SET CGI commands, live-probed status, firmware quirks).
 
 Auth: `Authorization: Bearer $CSP_API_TOKEN` on everything except
 `/healthz`. If the token env var is unset, auth is disabled — reported
@@ -62,7 +73,7 @@ Status codes: `404` unknown host · `502` switch unreachable/auth failed ·
 
 | Model | Normalized | Fallback |
 |---|---|---|
-| `vm-s100-0800ms` (VIMIN) | ✅ all six resources — validated live against fw 3.5.0.10 | — |
+| `vm-s100-0800ms` (VIMIN) | ✅ thirteen resources — validated live against fw 3.5.0.10 | — |
 | `sl-swtg124as`, `sl-swtgw218as` (Sodola) | ⏳ | `/raw` |
 | `10g08-0800gsm` (Binardat) | ⏳ | `/raw` |
 
