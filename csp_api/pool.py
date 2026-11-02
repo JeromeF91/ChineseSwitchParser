@@ -138,8 +138,9 @@ class SwitchPool:
         for key in section_keys:
             endpoint = client.api_endpoints.get(key)
             if endpoint is None:
-                warnings.append(f"unknown section {key!r} for this model")
-                continue
+                # raw passthrough: any CGI command name the device supports
+                # (see docs/VIMIN_COMMAND_REFERENCE.md), not just mapped keys
+                endpoint = f"cgi/get.cgi?cmd={key}"
             data = client.get_data(endpoint)
             if data is None:
                 # one re-auth + retry per section (session likely expired)

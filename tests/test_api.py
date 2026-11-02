@@ -72,6 +72,21 @@ def test_missing_token_rejected(client):
     assert client.get("/switches", headers=AUTH).status_code == 200
 
 
+def test_all_generated_resource_routes_require_auth(client):
+    """REGRESSION: loop-generated routes must carry the auth dependency —
+    a live test found them open on 2026-11-02."""
+    for res in ("info", "ports", "vlans", "mac-table", "lldp", "syslog",
+                "l3", "stp", "optics", "mirror", "firmware", "users", "snmp"):
+        r = client.get(f"/switches/vimin-test/{res}")
+        assert r.status_code == 401, f"{res} served without a token!"
+        r = client.get(f"/switches/vimin-test/{res}", headers={"Authorization": "Bearer wrong"})
+        assert r.status_code == 401, f"{res} accepted a bad token!"
+        r = client.get(f"/switches/vimin-test/{res}", headers=AUTH)
+        assert r.status_code in (200, 502), f"{res} broken with valid token: {r.status_code}"
+    assert client.get("/switches/vimin-test/raw").status_code == 401
+    assert client.get("/switches/vimin-test/detect").status_code == 401
+
+
 def test_unknown_host_404(client):
     r = client.get("/switches/nosuch/info", headers=AUTH)
     assert r.status_code == 404

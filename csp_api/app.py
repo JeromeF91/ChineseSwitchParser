@@ -152,12 +152,13 @@ def create_app(
             f"/switches/{{name}}/{_res.replace('_', '-')}",
             _make_route(_res),
             methods=["GET"],
+            dependencies=[Depends(require_token)],
             tags=["switches"],
         )
 
     @app.get("/switches/{name}/raw", dependencies=[Depends(require_token)])
     def raw(name: str, sections: Optional[str] = Query(
-        None, description="comma-separated endpoint keys; default: all for the model")) -> Dict[str, Any]:
+        None, description="comma-separated endpoint keys or raw CGI cmd names; default: all mapped for the model")) -> Dict[str, Any]:
         cfg = get_host(name)
         try:
             model_key = app.state.pool.model_key(cfg)
