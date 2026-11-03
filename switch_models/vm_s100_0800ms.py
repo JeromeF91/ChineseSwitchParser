@@ -20,7 +20,12 @@ class VMS1000800MS(BaseSwitchModel):
         return "VM-S100-0800MS"
     
     def get_api_endpoints(self) -> Dict[str, str]:
-        """Return the API endpoints specific to this model."""
+        """Return the API endpoints specific to this model.
+
+        Command names verified against the device's own registry
+        (js/url.js) and live-probed on fw 3.5.0.10; see
+        docs/VIMIN_COMMAND_REFERENCE.md for the full 258-command catalog.
+        """
         return {
             'system_info': 'cgi/get.cgi?cmd=sys_sysinfo',
             'cpu_memory': 'cgi/get.cgi?cmd=sys_cpumem',
@@ -28,6 +33,7 @@ class VMS1000800MS(BaseSwitchModel):
             'port_bandwidth': 'cgi/get.cgi?cmd=port_bwutilz',
             'port_config': 'cgi/get.cgi?cmd=port_config',
             'port_status': 'cgi/get.cgi?cmd=port_status',
+            'port_jumbo': 'cgi/get.cgi?cmd=port_jumbo',
             'lag_info': 'cgi/get.cgi?cmd=lag_mgmt',
             'syslog': 'cgi/get.cgi?cmd=log_syslog',
             'panel_info': 'cgi/get.cgi?cmd=panel_info',
@@ -37,16 +43,32 @@ class VMS1000800MS(BaseSwitchModel):
             'vlan_port': 'cgi/get.cgi?cmd=vlan_port',
             'mac_dynamic': 'cgi/get.cgi?cmd=mac_dynamic',
             'mac_static': 'cgi/get.cgi?cmd=mac_static',
+            'mac_filter': 'cgi/get.cgi?cmd=mac_filter',
             'mac_status': 'cgi/get.cgi?cmd=mac_miscStatus',
             'line_config': 'cgi/get.cgi?cmd=line_conf',
+            'mgmt_ip': 'cgi/get.cgi?cmd=sys_ip',
+            'dns': 'cgi/get.cgi?cmd=sys_dns',
+            'time': 'cgi/get.cgi?cmd=time_time',
+            'l3_interfaces': 'cgi/get.cgi?cmd=l3_v4Intf',
+            'l3_routes': 'cgi/get.cgi?cmd=l3_v4Route',
+            'l3_arp': 'cgi/get.cgi?cmd=l3_v4Arp',
+            'stp_global': 'cgi/get.cgi?cmd=stp_global',
+            'stp_ports': 'cgi/get.cgi?cmd=stp_intf',
+            'optical_ddm': 'cgi/get.cgi?cmd=diag_optical',
+            'mirror_sessions': 'cgi/get.cgi?cmd=diag_mirror',
+            'firmware_images': 'cgi/get.cgi?cmd=file_dualImg',
+            'firmware_img': 'cgi/get.cgi?cmd=file_img',
+            'local_users': 'cgi/get.cgi?cmd=sys_acct',
+            'snmp_communities': 'cgi/get.cgi?cmd=snmp_community',
+            'storm_control': 'cgi/get.cgi?cmd=storm_control',
+            'qos_config': 'cgi/get.cgi?cmd=qos_prop',
+            'acl_binding': 'cgi/get.cgi?cmd=acl_binding',
             'lldp_neighbors': 'cgi/get.cgi?cmd=lldp_neighbor',
-            'lldp_neighbor_detail': 'cgi/get.cgi?cmd=get_discoveryLldpNeighborDetail',
-            'lldp_config': 'cgi/get.cgi?cmd=get_discoveryLldpConfig',
-            'lldp_status': 'cgi/get.cgi?cmd=get_discoveryLldpStatus',
-            'lldp_settings': 'cgi/get.cgi?cmd=get_discoveryLldpSettings',
-            'lldp_global': 'cgi/get.cgi?cmd=get_discoveryLldpGlobal',
-            'lldp_port': 'cgi/get.cgi?cmd=get_discoveryLldpPort',
-            'lldp_port_config': 'cgi/get.cgi?cmd=get_discoveryLldpPortConfig'
+            'lldp_properties': 'cgi/get.cgi?cmd=lldp_prop',
+            'lldp_local': 'cgi/get.cgi?cmd=lldp_local',
+            'lldp_statistics': 'cgi/get.cgi?cmd=lldp_statistic',
+            'lldp_med_policy': 'cgi/get.cgi?cmd=lldp_medPolicy',
+            'lldp_med_port': 'cgi/get.cgi?cmd=lldp_medPort',
         }
     
     def get_login_endpoint(self) -> str:

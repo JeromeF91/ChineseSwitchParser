@@ -50,3 +50,8 @@ session.txt
 # Temporary files
 *.tmp
 *.temp
+
+# API: keep test fixtures, never commit the live registry or venv
+!tests/fixtures/*.json
+hosts.yaml
+.venv/
