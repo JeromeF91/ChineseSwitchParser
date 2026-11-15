@@ -9,6 +9,7 @@ from .vm_s100_0800ms import VMS1000800MS
 from .sl_swtg124as import SLSWTG124AS
 from .sl_swtgw218as import SLSWTGW218AS
 from .binardat_10g08_0800gsm import Binardat10G080800GSM
+from .rtlplayground import RTLPlayground
 
 # Model registry
 MODELS = {
@@ -18,6 +19,7 @@ MODELS = {
     'slswtg124as': SLSWTG124AS,
     'sl-swtgw218as': SLSWTGW218AS,
     'slswtgw218as': SLSWTGW218AS,
+    'rtlplayground': RTLPlayground,
     '10g08-0800gsm': Binardat10G080800GSM,
     '10G08-0800GSM': Binardat10G080800GSM,
     'binardat-10g08-0800gsm': Binardat10G080800GSM,
@@ -58,7 +60,13 @@ def detect_switch_model(url: str, timeout: int = 10) -> Optional[str]:
         
         if response.status_code == 200:
             content = response.text.lower()
-            
+
+            # Check for RTLPlayground firmware / httpd_sim indicators
+            # ("rtlplayground management interface" is the login subtitle in
+            # both the firmware tree and the simulator's html/)
+            if 'rtlplayground' in content:
+                return 'rtlplayground'
+
             # Check for Binardat 10G08-0800GSM indicators
             if ('layer 3 switch' in content and 'iensuegdul27c90d' in content and 'rc4(' in content):
                 return '10g08-0800gsm'

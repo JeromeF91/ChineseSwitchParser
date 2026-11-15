@@ -624,9 +624,133 @@ VIMIN_NORMALIZERS: Dict[str, Callable[[Dict[str, Any]], Any]] = {
     "snmp": vimin_snmp,
 }
 
+# --------------------------------------------------------------------------
+# RTLPlayground (open RTL8372/8373 firmware + its httpd_sim simulator)
+# --------------------------------------------------------------------------
+# Post-#768 API: physical port numbers throughout, per-entry VLAN in the L2
+# table, l/s entry types. Endpoints return bare JSON (no {'data': ...} wrap);
+# mac_table/vlans arrive pre-merged as {'entries': [...]} by the model class.
+
+_SPEED_LINK = {  # RTLPlayground link text -> (mbps, duplex); HD suffix = half
+    "10M": (10, "full"), "100M": (100, "full"),
+    "1G": (1000, "full"), "2.5G": (2500, "full"),
+    "5G": (5000, "full"), "10G": (10000, "full"),
+}
+
+
+def _link_speed(link: Any) -> Tuple[Optional[int], Optional[str]]:
+    text = str(link or "").strip()
+    if not text or text.upper() == "DOWN":
+        return None, None
+    duplex = "half" if text.endswith("-HD") else "full"
+    base = text[:-3] if text.endswith("-HD") else (
+        text[:-3] if text.endswith("-FD") else text)
+    mbps, _ = _SPEED_LINK.get(base, (None, None))
+    return mbps, duplex
+
+
+def rtlplayground_info(sections: Dict[str, Any]) -> SwitchInfo:
+    d = sections.get("info") or {}
+    uptime = _to_int(d.get("uptime"))
+    if uptime is None and str(d.get("uptime", "")).startswith("0x"):
+        uptime = int(str(d["uptime"]), 16)
+    hw = " ".join(x for x in (d.get("hw_ver"), d.get("pcb_ver")) if x)
+    return SwitchInfo(
+        ipv4=d.get("ip_address") or None,
+        base_mac=str(d.get("mac_address")).upper() if d.get("mac_address") else None,
+        firmware_version=d.get("sw_ver") or None,
+        uptime_seconds=uptime,
+        sys_object_id=hw or None,
+    )
+
+
+def rtlplayground_ports(sections: Dict[str, Any]) -> List[Port]:
+    ports = sections.get("ports") or []
+    traffic = {
+        p.get("port"): p for p in (sections.get("traffic") or [])
+        if isinstance(p, dict)
+    }
+    out: List[Port] = []
+    for p in ports if isinstance(ports, list) else []:
+        if not isinstance(p, dict):
+            continue
+        t = traffic.get(p.get("port"), {})
+        speed, duplex = _link_speed(t.get("link"))
+        mtu = _to_int(p.get("mtu"))
+        if mtu is None and str(p.get("mtu", "")).startswith("0x"):
+            mtu = int(str(p["mtu"]), 16)
+        out.append(Port(
+            index=int(p["port"]),
+            name=p.get("name") or None,
+            present=True,
+            link_up=bool(t) and str(t.get("link", "DOWN")).upper() != "DOWN",
+            speed_mbps=speed,
+            duplex=duplex if speed else None,
+            media="fiber" if p.get("isSFP") else "copper",
+            # enabled=0 ports are administratively down; VLAN membership is
+            # a per-VLAN view and lives on the vlans resource instead
+            uplink=None,
+        ))
+    return out
+
+
+def rtlplayground_vlans(sections: Dict[str, Any]) -> List[Vlan]:
+    d = _payload(sections.get("vlans", {})) or {}
+    entries = d.get("entries", []) if isinstance(d, dict) else []
+    out: List[Vlan] = []
+    for v in entries:
+        if not isinstance(v, dict) or v.get("vid") is None:
+            continue
+        members = [
+            VlanMember(port_index=int(p), tagged=True)
+            for p in v.get("tagged_members", [])
+        ] + [
+            VlanMember(port_index=int(p), tagged=False)
+            for p in v.get("untagged_members", [])
+        ]
+        out.append(Vlan(vlan_id=int(v["vid"]), name=v.get("name") or None,
+                        members=members))
+    return out
+
+
+_MAC_TYPES = {"l": "dynamic", "s": "static"}
+
+
+def rtlplayground_mac_table(sections: Dict[str, Any]) -> List[MacEntry]:
+    d = _payload(sections.get("mac_table", {})) or {}
+    entries = d.get("entries", []) if isinstance(d, dict) else []
+    out: List[MacEntry] = []
+    for e in entries:
+        if not isinstance(e, dict) or not _mac_valid(e.get("mac")):
+            continue
+        vlan = e.get("vlan")
+        vlan_id = None
+        if vlan not in (None, ""):
+            try:
+                vlan_id = int(str(vlan), 16)  # firmware sends hex ("0001")
+            except ValueError:
+                vlan_id = _to_int(vlan)
+        out.append(MacEntry(
+            mac=str(e["mac"]).upper(),
+            vlan_id=vlan_id,
+            port=str(e["port"]) if e.get("port") is not None else None,
+            entry_type=_MAC_TYPES.get(str(e.get("type", "")), None),
+        ))
+    return out
+
+
+RTLPLAYGROUND_NORMALIZERS: Dict[str, Callable[[Dict[str, Any]], Any]] = {
+    "info": rtlplayground_info,
+    "ports": rtlplayground_ports,
+    "vlans": rtlplayground_vlans,
+    "mac_table": rtlplayground_mac_table,
+}
+
+
 # canonical model key -> resource -> normalizer
 NORMALIZERS: Dict[str, Dict[str, Callable]] = {
     "vm-s100-0800ms": VIMIN_NORMALIZERS,
+    "rtlplayground": RTLPLAYGROUND_NORMALIZERS,
 }
 
 

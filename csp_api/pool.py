@@ -39,6 +39,15 @@ RESOURCE_SECTIONS: Dict[str, Dict[str, List[str]]] = {
         "users": ["local_users"],
         "snmp": ["snmp_communities"],
     },
+    # RTLPlayground open firmware / httpd_sim; endpoint keys resolve against
+    # switch_models/rtlplayground.py api_endpoints. VLAN membership is a
+    # per-VLAN view (vlans resource), not folded into ports here.
+    "rtlplayground": {
+        "info": ["info"],
+        "ports": ["ports", "traffic"],
+        "vlans": ["vlans"],
+        "mac_table": ["mac_table"],
+    },
 }
 
 RESOURCES = (

@@ -1,0 +1,282 @@
+{
+  "info": {
+    "info": {
+      "hw_ver": "SWGT024-V2.0",
+      "ip_address": "192.168.10.247",
+      "ip_gateway": "192.168.2.22",
+      "ip_netmask": "255.255.255.0",
+      "ip_source": "static",
+      "mac_address": "1c:2a:a3:23:00:02",
+      "pcb_ver": "PCB_SWTG024AS_A_V2_0_1_19650",
+      "sw_ver": "0.1-sim",
+      "uptime": "0x00000fcd"
+    }
+  },
+  "mac_table": {
+    "mac_table": {
+      "entries": [
+        {
+          "idx": "0010",
+          "mac": "00:01:2f:00:00:01",
+          "port": 7,
+          "type": "l",
+          "vlan": "001"
+        },
+        {
+          "idx": "0020",
+          "mac": "00:06:78:00:00:02",
+          "port": 7,
+          "type": "l",
+          "vlan": "001"
+        },
+        {
+          "idx": "0030",
+          "mac": "00:01:2e:00:00:03",
+          "port": 7,
+          "type": "s",
+          "vlan": "001"
+        },
+        {
+          "idx": "0040",
+          "mac": "60:7d:09:00:00:04",
+          "port": 7,
+          "type": "l",
+          "vlan": "001"
+        },
+        {
+          "idx": "0050",
+          "mac": "1c:2a:a3:00:00:05",
+          "port": 7,
+          "type": "l",
+          "vlan": "001"
+        },
+        {
+          "idx": "0060",
+          "mac": "1c:2a:a3:00:00:06",
+          "port": 7,
+          "type": "s",
+          "vlan": "001"
+        },
+        {
+          "idx": "0070",
+          "mac": "02:e0:4c:00:00:07",
+          "port": 7,
+          "type": "l",
+          "vlan": "001"
+        },
+        {
+          "idx": "0080",
+          "mac": "00:e0:4c:00:00:08",
+          "port": 4,
+          "type": "l",
+          "vlan": "001"
+        },
+        {
+          "idx": "0090",
+          "mac": "1c:2a:a3:00:00:09",
+          "port": 9,
+          "type": "l",
+          "vlan": "001"
+        },
+        {
+          "idx": "00a0",
+          "mac": "3c:8c:f8:00:00:0a",
+          "port": 7,
+          "type": "l",
+          "vlan": "001"
+        },
+        {
+          "idx": "00b0",
+          "mac": "00:01:2e:00:00:0b",
+          "port": 7,
+          "type": "l",
+          "vlan": "001"
+        },
+        {
+          "idx": "00c0",
+          "mac": "00:01:2f:00:01:01",
+          "port": 7,
+          "type": "l",
+          "vlan": "001"
+        }
+      ]
+    }
+  },
+  "ports": {
+    "ports": [
+      {
+        "adv": [
+          "2.5G"
+        ],
+        "enabled": 1,
+        "isSFP": false,
+        "mtu": "0x3fff",
+        "name": "",
+        "port": 1
+      },
+      {
+        "adv": [
+          "10M-HD",
+          "10M-FD"
+        ],
+        "enabled": 1,
+        "isSFP": false,
+        "mtu": "0x05f2",
+        "name": "",
+        "port": 2
+      },
+      {
+        "adv": [
+          "100M-HD"
+        ],
+        "enabled": 1,
+        "isSFP": false,
+        "mtu": "0x3fff",
+        "name": "",
+        "port": 3
+      },
+      {
+        "adv": [
+          "100M-HD"
+        ],
+        "enabled": 0,
+        "isSFP": false,
+        "mtu": "0x05f2",
+        "name": "",
+        "port": 4
+      },
+      {
+        "adv": [
+          "100M-HD"
+        ],
+        "enabled": 1,
+        "isSFP": false,
+        "mtu": "0x3fff",
+        "name": "",
+        "port": 5
+      },
+      {
+        "enabled": 1,
+        "isSFP": true,
+        "mtu": "0x05f2",
+        "name": "",
+        "port": 6,
+        "sfp_laser": "0x0000",
+        "sfp_model": "10G-SFP+",
+        "sfp_options": "0x68",
+        "sfp_rxpower": "0x0000",
+        "sfp_serial": "12345678",
+        "sfp_temp": "0x28fb",
+        "sfp_txbias": "0x0d5b",
+        "sfp_txpower": "0x14ff",
+        "sfp_vcc": "0x7f14",
+        "sfp_vendor": "OEM"
+      }
+    ],
+    "traffic": [
+      {
+        "link": "10G",
+        "macs": "0x01",
+        "name": "",
+        "port": 1,
+        "rxB": "0x000000000000d020",
+        "rxG": "0x0000007c0d5ad000",
+        "txB": "0x000000000000d020",
+        "txG": "0x0000007c0d5ad000"
+      },
+      {
+        "link": "DOWN",
+        "macs": "0x01",
+        "name": "",
+        "port": 2,
+        "rxB": "0x0000000000000000",
+        "rxG": "0x0000000000000000",
+        "txB": "0x0000000000000000",
+        "txG": "0x0000000000000000"
+      },
+      {
+        "link": "100M-HD",
+        "macs": "0x01",
+        "name": "",
+        "port": 3,
+        "rxB": "0x0000000000005262",
+        "rxG": "0x000000311a9e9d00",
+        "txB": "0x0000000000005262",
+        "txG": "0x000000311a9e9d00"
+      },
+      {
+        "link": "DOWN",
+        "macs": "0x01",
+        "name": "",
+        "port": 4,
+        "rxB": "0x0000000000000000",
+        "rxG": "0x0000000000000000",
+        "txB": "0x0000000000000000",
+        "txG": "0x0000000000000000"
+      },
+      {
+        "link": "100M-HD",
+        "macs": "0x01",
+        "name": "",
+        "port": 5,
+        "rxB": "0x0000000000005262",
+        "rxG": "0x000000311a9e9d00",
+        "txB": "0x0000000000005262",
+        "txG": "0x000000311a9e9d00"
+      },
+      {
+        "link": "DOWN",
+        "macs": "0x01",
+        "name": "",
+        "port": 6,
+        "rxB": "0x0000000000000000",
+        "rxG": "0x0000000000000000",
+        "txB": "0x0000000000000000",
+        "txG": "0x0000000000000000"
+      }
+    ]
+  },
+  "vlans": {
+    "vlans": {
+      "entries": [
+        {
+          "members": "0x0007e1f8",
+          "name": "",
+          "pvid": [
+            3,
+            4,
+            5,
+            6,
+            7,
+            8
+          ],
+          "tagged_members": [],
+          "untagged_members": [
+            3,
+            4,
+            5,
+            6,
+            7,
+            8
+          ],
+          "vid": 1
+        },
+        {
+          "members": "0x00000806",
+          "name": "sixtyFour",
+          "pvid": [
+            1
+          ],
+          "tagged_members": [
+            2
+          ],
+          "untagged_members": [
+            1
+          ],
+          "vid": 64
+        }
+      ],
+      "mgmt": 1
+    }
+  }
+}
